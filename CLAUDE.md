@@ -21,6 +21,7 @@ Integration tests for each data-layer subsystem live in `scripts/test-<subsystem
 
 - Write a descriptive commit message explaining WHY, not just WHAT. Follow the convention in the first commit.
 - Commit format: `<type>(<subsystem>): <imperative summary>` — e.g. `feat(redis): add semantic cache with VSIM lookup`.
+- **NEVER add Co-Authored-By trailers or any AI attribution to commits.** All commits must appear as the repo owner only.
 - Never commit `.env.local`, never commit real secrets, never commit `node_modules/`.
 
 ## Scripts

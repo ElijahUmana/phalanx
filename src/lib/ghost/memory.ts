@@ -45,17 +45,22 @@ async function openAiEmbed(
 
 function deterministicEmbed(text: string, dim: number): number[] {
   const vec = new Array<number>(dim).fill(0);
-  const seed = hashString(text);
-  let state = seed;
-  for (let i = 0; i < dim; i++) {
-    state = (state * 1103515245 + 12345) & 0x7fffffff;
-    vec[i] = ((state / 0x7fffffff) * 2) - 1;
-  }
   const lowered = text.toLowerCase();
-  const tokens = lowered.split(/[^a-z0-9]+/).filter((t) => t.length > 2);
+  const tokens = lowered.split(/[^a-z0-9]+/).filter((t) => t.length > 1);
   for (const token of tokens) {
-    const bucket = hashString(token) % dim;
-    vec[bucket] += 0.5;
+    const h1 = hashString(token) % dim;
+    const h2 = hashString('b:' + token) % dim;
+    const h3 = hashString('c:' + token) % dim;
+    vec[h1] += 1.0;
+    vec[h2] += 0.8;
+    vec[h3] += 0.6;
+    if (token.length >= 4) {
+      for (let i = 0; i <= token.length - 3; i++) {
+        const trigram = token.slice(i, i + 3);
+        const tHash = hashString('tri:' + trigram) % dim;
+        vec[tHash] += 0.3;
+      }
+    }
   }
   let norm = 0;
   for (const v of vec) norm += v * v;
