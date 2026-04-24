@@ -37,8 +37,7 @@ pnpm install -g wgc@latest
 wgc router download-binary -o ./router/bin          # run from cosmo/ dir
 (cd jwt-mock       && npm install)
 (cd mcp-gateway    && npm install)
-for d in services/*; do (cd "$d" && npm install && npm run generate); done
-wgc router compose -i ./graph.yaml -o ./config.json
+for d in services/*; do (cd "$d" && npm install); done
 ```
 
 Boot everything:
@@ -54,6 +53,30 @@ cd ..                                  # back to project root
 npx tsx cosmo/scripts/demo-scopes.ts   # expect 9/9 pass
 pnpm test:wundergraph                  # smoke test the TS client
 ```
+
+## Generated files — commit policy
+
+The protobuf schemas (`src/proto/service/v1/service.proto`, `mapping.json`), the
+TypeScript Connect RPC bindings (`src/generated/service/v1/service_pb.ts`), and
+the composed supergraph execution config (`config.json`) are **checked in**. They
+are required at runtime (the router reads `config.json`; subgraph services
+import the generated TS). The root `tsconfig.json` excludes `cosmo/` so
+Next.js's TypeScript check doesn't try to type-check subgraph code using the
+Next.js `paths` alias.
+
+To regenerate after editing a subgraph's `schema.graphql`:
+
+```bash
+cd cosmo/services/<subgraph>
+npm run generate:proto   # SDL → .proto + mapping.json via wgc
+npm run generate:buf     # .proto → TS via buf
+cd ../..
+wgc router compose -i ./graph.yaml -o ./config.json   # refresh supergraph
+```
+
+`npm run generate` runs all three (plus `router compose` via each service's own
+`compose.yaml`). Prefer the explicit sequence above so the top-level `config.json`
+stays authoritative over any per-service router execution configs.
 
 ## Example Queries
 
