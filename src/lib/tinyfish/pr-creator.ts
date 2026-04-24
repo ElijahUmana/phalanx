@@ -32,7 +32,7 @@ export async function createPullRequest(
         } catch (agentErr) {
             const message = agentErr instanceof Error ? agentErr.message : String(agentErr);
             await emitEvent(scanId, {
-                type: 'tinyfish.pr.create',
+                type: 'tinyfish.pr.attempt',
                 source: 'tinyfish',
                 data: {
                     stage: 'agent-failed-falling-back-to-api',
@@ -84,10 +84,11 @@ export async function createPullRequestViaAgent(
     ].join(' ');
 
     await emitEvent(scanId, {
-        type: 'tinyfish.pr.create',
+        type: 'tinyfish.pr.attempt',
         source: 'tinyfish',
         data: {
             stage: 'agent-start',
+            strategy: 'tinyfish-agent',
             repoSlug: input.repoSlug,
             baseBranch: input.baseBranch,
             headBranch: input.headBranch,
@@ -147,10 +148,11 @@ export async function createPullRequestViaAgent(
     const prNumber = typeof parsed['prNumber'] === 'number' ? parsed['prNumber'] : extractPrNumber(prUrl);
 
     await emitEvent(scanId, {
-        type: 'tinyfish.pr.create',
+        type: prUrl !== null ? 'tinyfish.pr.created' : 'tinyfish.pr.attempt',
         source: 'tinyfish',
         data: {
             stage: 'agent-complete',
+            strategy: 'tinyfish-agent',
             runId,
             prUrl,
             prNumber,
@@ -190,9 +192,9 @@ export async function createPullRequestViaApi(
     if (!token) {
         const err = 'GITHUB_TOKEN not set — cannot fall back to GitHub API PR creation';
         await emitEvent(scanId, {
-            type: 'tinyfish.pr.create',
+            type: 'tinyfish.pr.attempt',
             source: 'tinyfish',
-            data: { stage: 'api-unavailable', repoSlug: input.repoSlug, error: err },
+            data: { stage: 'api-unavailable', strategy: 'github-api', repoSlug: input.repoSlug, error: err },
         });
         return failureResult(input, err, null);
     }
@@ -223,9 +225,15 @@ export async function createPullRequestViaApi(
         const text = await prResponse.text();
         const err = `GitHub API returned ${prResponse.status} ${prResponse.statusText}: ${text}`;
         await emitEvent(scanId, {
-            type: 'tinyfish.pr.create',
+            type: 'tinyfish.pr.attempt',
             source: 'tinyfish',
-            data: { stage: 'api-failed', repoSlug: input.repoSlug, status: prResponse.status, error: err },
+            data: {
+                stage: 'api-failed',
+                strategy: 'github-api',
+                repoSlug: input.repoSlug,
+                status: prResponse.status,
+                error: err,
+            },
         });
         throw new Error(`${err}${causeFromAgent ? ` (agent fallback cause: ${causeFromAgent})` : ''}`);
     }
@@ -238,10 +246,11 @@ export async function createPullRequestViaApi(
     const prNumber = typeof pr.number === 'number' ? pr.number : null;
 
     await emitEvent(scanId, {
-        type: 'tinyfish.pr.create',
+        type: prUrl !== null ? 'tinyfish.pr.created' : 'tinyfish.pr.attempt',
         source: 'tinyfish',
         data: {
             stage: 'api-created',
+            strategy: 'github-api',
             repoSlug: input.repoSlug,
             prUrl,
             prNumber,
@@ -262,7 +271,7 @@ export async function createPullRequestViaApi(
             const message = err instanceof Error ? err.message : String(err);
             // Surface as event but not fatal — PR is already open.
             void emitEvent(scanId, {
-                type: 'tinyfish.pr.create',
+                type: 'tinyfish.pr.attempt',
                 source: 'tinyfish',
                 data: { stage: 'api-labels-failed', prNumber, error: message },
             });
@@ -281,7 +290,7 @@ export async function createPullRequestViaApi(
         ).catch((err) => {
             const message = err instanceof Error ? err.message : String(err);
             void emitEvent(scanId, {
-                type: 'tinyfish.pr.create',
+                type: 'tinyfish.pr.attempt',
                 source: 'tinyfish',
                 data: { stage: 'api-reviewers-failed', prNumber, error: message },
             });

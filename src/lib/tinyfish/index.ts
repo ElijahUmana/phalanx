@@ -7,9 +7,13 @@
 //
 // Every exported function takes `scanId: string` as the FIRST argument.
 // Emits event types (dashboard subscribes to these):
-//   tinyfish.search / tinyfish.fetch
-//   tinyfish.agent.start / tinyfish.agent.stream / tinyfish.agent.progress / tinyfish.agent.complete
-//   tinyfish.portal.navigate / tinyfish.pr.create / tinyfish.enrich
+//   tinyfish.search           — one per search.query call
+//   tinyfish.fetch            — one per fetch.getContents call
+//   tinyfish.navigate         — one per vendor-portal agent.stream() start
+//   tinyfish.pr.attempt       — intermediate / failure stages of PR creation
+//   tinyfish.pr.created       — successful PR creation (agent OR api strategy)
+//   tinyfish.enrich           — CVE enrichment summary
+//   tinyfish.agent.{start,stream,progress,complete} — low-level browser-agent lifecycle
 
 // NOTE: We attach `.js` extensions to the relative re-exports below so this
 // module loads under both CJS (tsx default) and ESM strict mode. TypeScript's

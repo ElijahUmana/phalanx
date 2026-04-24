@@ -1,103 +1,137 @@
-// TinyFish web action layer — shared types.
+// TinyFish web action layer — shared Zod schemas + inferred types.
 // Every exported function in this subsystem takes `scanId: string` as the first
 // argument so the orchestrator can stitch TinyFish runs into a scan's timeline
 // and the dashboard can render per-scan browser-preview + progress panels.
+//
+// Schemas are the source of truth — call `.parse()` or `.safeParse()` at system
+// boundaries (persisting to Ghost, responding to dashboard SSE, etc.) to get
+// runtime guarantees. Use the `z.infer<>` types for compile-time shape checks.
 
+import { z } from 'zod';
 import type { SearchResult, FetchResult } from '@tiny-fish/sdk';
 
 export type { SearchResult, FetchResult };
 
-/** A CVE advisory reference discovered via TinyFish Search or Fetch. */
-export interface AdvisorySource {
-    url: string;
-    title: string | null;
-    snippet: string;
-    publishedDate: string | null;
-    siteName: string;
-    /** Empty until we pull full content via fetch. */
-    bodyMarkdown: string | null;
-}
+// ---------- Scanner ----------
 
-export interface CveAdvisoryReport {
-    cveId: string;
-    packageName: string | null;
-    sources: AdvisorySource[];
-    searchQueries: string[];
-    fetchedAt: string;
-}
+export const advisorySourceSchema = z.object({
+    url: z.string().url(),
+    title: z.string().nullable(),
+    snippet: z.string(),
+    publishedDate: z.string().nullable(),
+    siteName: z.string(),
+    bodyMarkdown: z.string().nullable(),
+});
+export type AdvisorySource = z.infer<typeof advisorySourceSchema>;
 
-export interface VendorPortalResult {
-    registry: 'npm' | 'pypi' | 'maven' | 'rubygems' | 'crates.io' | 'other';
-    packageName: string;
-    requestedVersion: string | null;
-    patchedVersion: string | null;
-    releaseNotes: string | null;
-    changelogSummary: string | null;
-    packageUrl: string;
+export const cveAdvisoryReportSchema = z.object({
+    cveId: z.string(),
+    packageName: z.string().nullable(),
+    sources: z.array(advisorySourceSchema),
+    searchQueries: z.array(z.string()),
+    fetchedAt: z.string(),
+});
+export type CveAdvisoryReport = z.infer<typeof cveAdvisoryReportSchema>;
+
+// ---------- Vendor portal ----------
+
+export const registrySchema = z.enum([
+    'npm',
+    'pypi',
+    'maven',
+    'rubygems',
+    'crates.io',
+    'other',
+]);
+export type Registry = z.infer<typeof registrySchema>;
+
+export const vendorPortalResultSchema = z.object({
+    registry: registrySchema,
+    packageName: z.string(),
+    requestedVersion: z.string().nullable(),
+    patchedVersion: z.string().nullable(),
+    releaseNotes: z.string().nullable(),
+    changelogSummary: z.string().nullable(),
+    packageUrl: z.string().url(),
     /** URL of the live browser preview from TinyFish (visible for the demo). */
-    streamingUrl: string | null;
+    streamingUrl: z.string().url().nullable(),
     /** TinyFish run id for audit. */
-    runId: string;
-    /** Raw agent-returned result payload. */
-    raw: unknown;
-}
+    runId: z.string(),
+    /** Raw agent-returned result payload — kept `unknown` so the schema does
+     *  not lie about shape. Consumers that care should parse `raw` further. */
+    raw: z.unknown(),
+});
+export type VendorPortalResult = z.infer<typeof vendorPortalResultSchema>;
 
-export interface EnrichmentHit {
-    kind:
-        | 'vendor_advisory'
-        | 'github_poc'
-        | 'researcher_post'
-        | 'ghsa'
-        | 'nvd'
-        | 'other';
-    url: string;
-    title: string;
-    snippet: string;
-    confidence: number;
-}
+// ---------- Enrichment ----------
 
-export interface EnrichmentReport {
-    cveId: string;
-    hits: EnrichmentHit[];
-    primarySource: EnrichmentHit | null;
-    pocUrls: string[];
-    vendorAdvisoryUrl: string | null;
-    generatedAt: string;
-}
+export const enrichmentKindSchema = z.enum([
+    'vendor_advisory',
+    'github_poc',
+    'researcher_post',
+    'ghsa',
+    'nvd',
+    'other',
+]);
+export type EnrichmentKind = z.infer<typeof enrichmentKindSchema>;
 
-export type PrStrategy = 'tinyfish-agent' | 'github-api';
+export const enrichmentHitSchema = z.object({
+    kind: enrichmentKindSchema,
+    url: z.string().url(),
+    title: z.string(),
+    snippet: z.string(),
+    confidence: z.number().min(0).max(1),
+});
+export type EnrichmentHit = z.infer<typeof enrichmentHitSchema>;
 
-export interface PrCreationResult {
-    strategy: PrStrategy;
-    success: boolean;
-    prUrl: string | null;
-    prNumber: number | null;
-    repoSlug: string;
-    branchName: string;
-    title: string;
-    body: string;
-    labels: string[];
-    reviewers: string[];
-    /** Only populated when strategy === 'tinyfish-agent'. */
-    streamingUrl: string | null;
-    runId: string | null;
-    /** Captured error message when success=false. */
-    error: string | null;
-}
+export const enrichmentReportSchema = z.object({
+    cveId: z.string(),
+    hits: z.array(enrichmentHitSchema),
+    primarySource: enrichmentHitSchema.nullable(),
+    pocUrls: z.array(z.string().url()),
+    vendorAdvisoryUrl: z.string().url().nullable(),
+    generatedAt: z.string(),
+});
+export type EnrichmentReport = z.infer<typeof enrichmentReportSchema>;
 
-export interface PrCreationInput {
-    repoSlug: string;             // "owner/repo"
-    baseBranch: string;            // "main"
-    headBranch: string;            // "phalanx/fix-cve-2020-8203"
-    title: string;
-    body: string;
-    labels?: string[];
-    reviewers?: string[];
+// ---------- PR creation ----------
+
+export const prStrategySchema = z.enum(['tinyfish-agent', 'github-api']);
+export type PrStrategy = z.infer<typeof prStrategySchema>;
+
+export const prCreationInputSchema = z.object({
+    /** "owner/repo" — the target repository. */
+    repoSlug: z.string().regex(/^[^/\s]+\/[^/\s]+$/, 'expected "owner/repo"'),
+    /** e.g. "main" */
+    baseBranch: z.string().min(1),
+    /** e.g. "phalanx/fix-cve-2020-8203" */
+    headBranch: z.string().min(1),
+    title: z.string().min(1),
+    body: z.string(),
+    labels: z.array(z.string()).optional(),
+    reviewers: z.array(z.string()).optional(),
     /** When true, prefer TinyFish browser-agent navigation over the GitHub API. */
-    preferBrowserAgent?: boolean;
-    /**
-     * A description of the remediation commits already pushed to `headBranch`
-     * (used by the agent to set PR description context).
-     */
-    commitsSummary?: string;
-}
+    preferBrowserAgent: z.boolean().optional(),
+    /** Description of commits already pushed to `headBranch` — context for the agent. */
+    commitsSummary: z.string().optional(),
+});
+export type PrCreationInput = z.infer<typeof prCreationInputSchema>;
+
+export const prCreationResultSchema = z.object({
+    strategy: prStrategySchema,
+    success: z.boolean(),
+    prUrl: z.string().url().nullable(),
+    prNumber: z.number().nullable(),
+    repoSlug: z.string(),
+    branchName: z.string(),
+    title: z.string(),
+    body: z.string(),
+    labels: z.array(z.string()),
+    reviewers: z.array(z.string()),
+    /** Only populated when strategy === 'tinyfish-agent'. */
+    streamingUrl: z.string().url().nullable(),
+    runId: z.string().nullable(),
+    /** Captured error message when success=false. */
+    error: z.string().nullable(),
+});
+export type PrCreationResult = z.infer<typeof prCreationResultSchema>;

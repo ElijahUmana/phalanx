@@ -10,7 +10,7 @@
 // Usage:
 //   pnpm test:tinyfish               # scanner + enrichment (cheap)
 //   pnpm test:tinyfish --portal      # + live npm page navigation
-//   pnpm test:tinyfish --pr          # + open a real GitHub PR on phalanx
+//   pnpm test:tinyfish --pr          # + open a real GitHub PR on phalanx-demo-target
 //   pnpm test:tinyfish --all         # everything
 //
 // Implementation note: we dynamic-import the TinyFish library inside main()
@@ -91,10 +91,12 @@ async function main(): Promise<void> {
     }
 
     if (runPr) {
-        section('4. PR creator — createPullRequest on phalanx');
+        section('4. PR creator — createPullRequest on phalanx-demo-target');
         console.log('   [this opens a REAL GitHub PR — branch must already exist on origin]');
+        const repoSlug =
+            process.env.TINYFISH_PR_REPO ?? 'ElijahUmana/phalanx-demo-target';
         const pr = await createPullRequest(SCAN_ID, {
-            repoSlug: 'ElijahUmana/phalanx',
+            repoSlug,
             baseBranch: 'main',
             headBranch: `phalanx-test/${CVE_ID.toLowerCase()}-smoke-${Date.now()}`,
             title: `[demo] TinyFish smoke PR for ${CVE_ID}`,

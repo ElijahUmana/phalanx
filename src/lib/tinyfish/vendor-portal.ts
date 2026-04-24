@@ -80,7 +80,7 @@ export async function inspectVendorPortal(
     const client = getTinyFish();
 
     await emitEvent(scanId, {
-        type: 'tinyfish.portal.navigate',
+        type: 'tinyfish.navigate',
         source: 'tinyfish',
         data: {
             registry,
@@ -88,6 +88,7 @@ export async function inspectVendorPortal(
             currentVersion,
             cveContext: cveContext ?? null,
             packageUrl,
+            phase: 'vendor-portal',
         },
     });
 
