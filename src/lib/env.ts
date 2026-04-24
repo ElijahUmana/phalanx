@@ -15,6 +15,7 @@ const EnvSchema = z.object({
   GITHUB_TOKEN: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
+  NEXLA_SLACK_WEBHOOK_URL: z.string().url().optional(),
 
   GHOST_DB_NAME: z.string().default('phalanx-deps'),
 
