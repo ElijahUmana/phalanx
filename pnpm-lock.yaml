@@ -4,6 +4,13 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+packageExtensionsChecksum: sha256-URRj88OT1nXdORVf/bKB8njmmNaRklecwNj/z4z7OzQ=
+
+patchedDependencies:
+  '@tiny-fish/sdk@0.0.8':
+    hash: 7f8a99b328de700cc5846fdc1625b5dc5e0c3a4a9f7eb7fa11504c65c066fd3b
+    path: patches/@tiny-fish__sdk@0.0.8.patch
+
 importers:
 
   .:
@@ -22,7 +29,7 @@ importers:
         version: 0.11.0
       '@tiny-fish/sdk':
         specifier: ^0.0.8
-        version: 0.0.8
+        version: 0.0.8(patch_hash=7f8a99b328de700cc5846fdc1625b5dc5e0c3a4a9f7eb7fa11504c65c066fd3b)
       '@x402/core':
         specifier: ^2.10.0
         version: 2.10.0
@@ -35,6 +42,9 @@ importers:
       '@x402/fetch':
         specifier: ^2.10.0
         version: 2.10.0(typescript@5.9.3)
+      bs58:
+        specifier: ^6.0.0
+        version: 6.0.0
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -1610,6 +1620,9 @@ packages:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
 
+  base-x@5.0.1:
+    resolution: {integrity: sha512-M7uio8Zt++eg3jPj+rHMfCC+IuygQHHCOU+IYsVtik6FWjuYpVt/+MRKcgsAMHh8mMFAwnB+Bs+mTrFiXjMzKg==}
+
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
@@ -1641,6 +1654,9 @@ packages:
     resolution: {integrity: sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
+
+  bs58@6.0.0:
+    resolution: {integrity: sha512-PD0wEnEYg6ijszw/u8s+iI3H17cTymlrwkKhDhPZq+Sokl3AU4htyBFTjAeNAlCCmg0f53g6ih3jATyCKftTfw==}
 
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
@@ -4459,7 +4475,7 @@ snapshots:
       postcss: 8.5.10
       tailwindcss: 4.2.4
 
-  '@tiny-fish/sdk@0.0.8':
+  '@tiny-fish/sdk@0.0.8(patch_hash=7f8a99b328de700cc5846fdc1625b5dc5e0c3a4a9f7eb7fa11504c65c066fd3b)':
     dependencies:
       p-retry: 7.1.1
       zod: 4.3.6
@@ -4859,6 +4875,8 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
+  base-x@5.0.1: {}
+
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.10.21: {}
@@ -4908,6 +4926,10 @@ snapshots:
       electron-to-chromium: 1.5.344
       node-releases: 2.0.38
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
+
+  bs58@6.0.0:
+    dependencies:
+      base-x: 5.0.1
 
   bytes@3.1.2: {}
 

@@ -1,0 +1,23 @@
+diff --git a/package.json b/package.json
+index c9d80b7c1e3335fcb8bc768a885da0a09db51284..4261761d54576fa0625adfce3925333591492499 100644
+--- a/package.json
++++ b/package.json
+@@ -1,14 +1,16 @@
+ {
+   "name": "@tiny-fish/sdk",
+   "version": "0.0.8",
+-  "description": "TinyFish TypeScript SDK — State-of-the-art web agents in an API",
++  "description": "TinyFish TypeScript SDK \u2014 State-of-the-art web agents in an API",
+   "type": "module",
+   "main": "dist/index.js",
+   "types": "dist/index.d.ts",
+   "exports": {
+     ".": {
+       "import": "./dist/index.js",
+-      "types": "./dist/index.d.ts"
++      "types": "./dist/index.d.ts",
++      "default": "./dist/index.js",
++      "require": "./dist/index.js"
+     }
+   },
+   "files": [

@@ -13,6 +13,7 @@
     "test:redis": "tsx scripts/test-redis.ts",
     "test:chainguard": "tsx scripts/test-chainguard.ts",
     "test:wundergraph": "tsx scripts/test-wundergraph.ts",
+    "test:tinyfish": "tsx scripts/test-tinyfish.ts",
     "test:scopes": "tsx cosmo/scripts/demo-scopes.ts",
     "cosmo:compose": "wgc router compose -i ./cosmo/graph.yaml -o ./cosmo/config.json",
     "cosmo:start": "bash ./cosmo/scripts/start-all.sh",
@@ -28,6 +29,7 @@
     "@x402/evm": "^2.10.0",
     "@x402/express": "^2.10.0",
     "@x402/fetch": "^2.10.0",
+    "bs58": "^6.0.0",
     "dotenv": "^16.4.5",
     "next": "16.2.4",
     "pg": "^8.12.0",
@@ -48,5 +50,22 @@
     "tailwindcss": "^4",
     "tsx": "^4.19.2",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "@tiny-fish/sdk": {
+        "exports": {
+          ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js",
+            "default": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+          }
+        }
+      }
+    },
+    "patchedDependencies": {
+      "@tiny-fish/sdk@0.0.8": "patches/@tiny-fish__sdk@0.0.8.patch"
+    }
   }
 }
