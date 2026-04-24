@@ -1,0 +1,22 @@
+{
+  "$schema": "https://shipables.senso.ai/schema/skill.json",
+  "name": "phalanx",
+  "version": "0.1.0",
+  "description": "Parallel-fork CVE remediation. Scan a GitHub repo, fork dependency state N ways, validate in isolated backends, cancel false positives mid-flight, ship the winner with a Sigstore-signed evidence chain.",
+  "homepage": "https://github.com/ElijahUmana/phalanx",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ElijahUmana/phalanx"
+  },
+  "keywords": [
+    "cve",
+    "security",
+    "supply-chain",
+    "sbom",
+    "sigstore",
+    "remediation",
+    "dependency-audit"
+  ],
+  "categories": ["security", "developer-tools"],
+  "files": ["SKILL.md"]
+}
