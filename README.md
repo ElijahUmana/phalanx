@@ -293,32 +293,37 @@ Remove any one and the architecture breaks. This is not incremental improvement 
 
 ---
 
-## Try It
+## Run It
 
-### Live
-
-```
-https://phalanx-sandy.vercel.app/dashboard
-```
-
-Paste `https://github.com/ElijahUmana/phalanx-demo-target` and watch 52+ events stream across 8 sponsor tools.
-
-### Local
+### Quick start
 
 ```bash
+git clone https://github.com/ElijahUmana/phalanx.git
+cd phalanx
 pnpm install
-cp .env.example .env.local   # fill in API keys
-pnpm dev                     # http://localhost:3000/dashboard
+cp .env.example .env.local   # fill in API keys (Ghost, Redis, TinyFish, etc.)
 ```
+
+### Start the full stack
+
+```bash
+# Terminal 1 — WunderGraph Cosmo Router + 4 subgraphs + JWT mock + MCP Gateway
+bash cosmo/scripts/start-all.sh
+
+# Terminal 2 — Next.js dashboard
+pnpm dev
+```
+
+Open **http://localhost:3000/dashboard**, paste `https://github.com/ElijahUmana/phalanx-demo-target`, and watch 52+ real events stream across all 8 sponsor tools.
 
 ### Scan via API
 
 ```bash
-SCAN=$(curl -s -X POST https://phalanx-sandy.vercel.app/api/scan \
+SCAN=$(curl -s -X POST http://localhost:3000/api/scan \
   -H 'Content-Type: application/json' \
   -d '{"repoUrl":"https://github.com/ElijahUmana/phalanx-demo-target"}' | jq -r .scanId)
 
-curl -N "https://phalanx-sandy.vercel.app/api/status?scanId=$SCAN"
+curl -N "http://localhost:3000/api/status?scanId=$SCAN"
 ```
 
 ### Install as a Skill
@@ -347,8 +352,12 @@ docker build -t phalanx .
 docker run -p 3000:3000 --env-file .env.local phalanx
 ```
 
+### Deployment
+
+Phalanx is a multi-service system: the Next.js dashboard + API layer, the WunderGraph Cosmo Router (Go binary), and Chainguard CLI tools (cosign, dfc, malcontent). For production, the Next.js layer deploys to any Node hosting, and the Cosmo Router + Chainguard verification services deploy as containers on Railway, Fly.io, or Cloud Run — all running on Chainguard zero-CVE base images.
+
 ---
 
 ## Tech Stack
 
-Next.js 16 | TypeScript | Tailwind CSS | shadcn/ui | Vercel | WunderGraph Cosmo | TinyFish | Ghost | Guild.ai | Redis 8.4 | Chainguard | InsForge | Nexla Express | Senso | Coinbase CDP | x402 | PostgreSQL | pgvector | Sigstore | cosign
+Next.js 16 | TypeScript | Tailwind CSS | shadcn/ui | WunderGraph Cosmo | TinyFish | Ghost | Guild.ai | Redis 8.4 | Chainguard | InsForge | Nexla Express | Senso | Coinbase CDP | x402 | PostgreSQL | pgvector | Sigstore | cosign
