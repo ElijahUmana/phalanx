@@ -1,0 +1,100 @@
+[
+  {
+    "cveId": "CVE-2020-8203",
+    "severity": "high",
+    "cvssScore": 7.4,
+    "affectedPackages": [{ "name": "lodash", "versionRange": "<4.17.20" }],
+    "patchVersions": [{ "name": "lodash", "fixedIn": "4.17.20" }],
+    "discoverySource": "nvd",
+    "description": "Prototype pollution attack (lodash). Versions of lodash prior to 4.17.20 are vulnerable to prototype pollution via the zipObjectDeep function. The function may be tricked into adding or modifying properties of Object.prototype using a constructor payload, resulting in unauthorized property modification of Object.prototype.",
+    "publishedAt": "2020-07-15T17:15:00Z",
+    "status": "open"
+  },
+  {
+    "cveId": "CVE-2020-7598",
+    "severity": "medium",
+    "cvssScore": 5.6,
+    "affectedPackages": [{ "name": "minimist", "versionRange": "<0.2.1 || >=1.0.0 <1.2.3" }],
+    "patchVersions": [{ "name": "minimist", "fixedIn": "1.2.3" }],
+    "discoverySource": "nvd",
+    "description": "minimist before 1.2.3 is vulnerable to prototype pollution. Arguments are not properly sanitized, allowing an attacker to modify the prototype of Object, causing the addition or modification of an existing property that will exist on all objects. This occurs via the setKey function.",
+    "publishedAt": "2020-03-11T18:15:00Z",
+    "status": "open"
+  },
+  {
+    "cveId": "CVE-2020-28168",
+    "severity": "medium",
+    "cvssScore": 5.9,
+    "affectedPackages": [{ "name": "axios", "versionRange": "<0.21.1" }],
+    "patchVersions": [{ "name": "axios", "fixedIn": "0.21.1" }],
+    "discoverySource": "nvd",
+    "description": "Axios NPM package 0.21.0 contains a Server-Side Request Forgery (SSRF) vulnerability where an attacker is able to bypass a proxy by providing a URL that responds with a redirect to a restricted host or IP address.",
+    "publishedAt": "2020-11-06T17:15:00Z",
+    "status": "open"
+  },
+  {
+    "cveId": "CVE-2020-15168",
+    "severity": "medium",
+    "cvssScore": 5.3,
+    "affectedPackages": [{ "name": "node-fetch", "versionRange": "<2.6.1 || >=3.0.0-beta.1 <3.0.0-beta.9" }],
+    "patchVersions": [
+      { "name": "node-fetch", "fixedIn": "2.6.1" },
+      { "name": "node-fetch", "fixedIn": "3.0.0-beta.9" }
+    ],
+    "discoverySource": "ghsa",
+    "description": "node-fetch before versions 2.6.1 and 3.0.0-beta.9 did not honor the size option after following a redirect, which means that when a content size was over the limit, a FetchError would never get thrown and the process would end without failure. For most people, this fix will have a little or no impact. However, if you are relying on node-fetch to gate files above a size, the impact can be significant.",
+    "publishedAt": "2020-09-10T17:15:00Z",
+    "status": "open"
+  },
+  {
+    "cveId": "CVE-2021-32640",
+    "severity": "medium",
+    "cvssScore": 5.3,
+    "affectedPackages": [{ "name": "ws", "versionRange": ">=5.0.0 <5.2.3 || >=6.0.0 <6.2.2 || >=7.0.0 <7.4.6" }],
+    "patchVersions": [
+      { "name": "ws", "fixedIn": "5.2.3" },
+      { "name": "ws", "fixedIn": "6.2.2" },
+      { "name": "ws", "fixedIn": "7.4.6" }
+    ],
+    "discoverySource": "ghsa",
+    "description": "ws is an open source WebSocket client and server library for Node.js. A specially crafted value of the Sec-Websocket-Protocol header can be used to significantly slow down a ws server (Regular Expression Denial of Service / ReDoS). The vulnerability has been fixed in ws@7.4.6.",
+    "publishedAt": "2021-05-25T19:15:00Z",
+    "status": "open"
+  },
+  {
+    "cveId": "CVE-2022-0155",
+    "severity": "medium",
+    "cvssScore": 6.5,
+    "affectedPackages": [{ "name": "follow-redirects", "versionRange": "<1.14.7" }],
+    "patchVersions": [{ "name": "follow-redirects", "fixedIn": "1.14.7" }],
+    "discoverySource": "nvd",
+    "description": "follow-redirects before 1.14.7 sends Cookie headers to third-party sites during cross-domain redirects, causing exposure of private personal information to unauthorized actors.",
+    "publishedAt": "2022-01-10T19:15:00Z",
+    "status": "open"
+  },
+  {
+    "cveId": "CVE-2022-23529",
+    "severity": "high",
+    "cvssScore": 7.6,
+    "affectedPackages": [{ "name": "jsonwebtoken", "versionRange": "<9.0.0" }],
+    "patchVersions": [{ "name": "jsonwebtoken", "fixedIn": "9.0.0" }],
+    "discoverySource": "ghsa",
+    "description": "jsonwebtoken versions <=8.5.1 are vulnerable to a signature verification bypass. The jwt.verify() function does not validate the type of the secretOrPublicKey parameter, which allows attackers to bypass signature verification by passing a maliciously crafted key.",
+    "publishedAt": "2022-12-22T20:15:00Z",
+    "status": "open"
+  },
+  {
+    "cveId": "CVE-2024-29041",
+    "severity": "medium",
+    "cvssScore": 6.1,
+    "affectedPackages": [{ "name": "express", "versionRange": "<4.19.2 || >=5.0.0-alpha.1 <5.0.0-beta.3" }],
+    "patchVersions": [
+      { "name": "express", "fixedIn": "4.19.2" },
+      { "name": "express", "fixedIn": "5.0.0-beta.3" }
+    ],
+    "discoverySource": "ghsa",
+    "description": "Express.js is vulnerable to an open redirect / URL sanitization flaw. The res.location() and res.redirect() methods do not adequately sanitize user-supplied URLs, which can allow an attacker to redirect users to malicious sites from a trusted domain.",
+    "publishedAt": "2024-03-25T19:15:00Z",
+    "status": "open"
+  }
+]
