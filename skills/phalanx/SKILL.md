@@ -2,7 +2,7 @@
 name: phalanx
 description: Phalanx runs parallel-fork CVE remediation on a GitHub repository. Paste a repo URL, and the skill detects critical CVEs in the dependency tree, forks the dependency state N ways via Ghost, validates each hypothesis in isolated InsForge backends, cancels false positives mid-flight via Redis Pub/Sub, converts the Dockerfile to a Chainguard zero-CVE base, and publishes a signed evidence chain to cited.md. Use when the user asks to scan a repository for vulnerabilities, remediate a CVE autonomously, generate an SBOM with attestation, or produce a legally-defensible security remediation record. Also use for keywords like "CVE", "supply chain attack", "dependency audit", "zero-day remediation", "SBOM", "Sigstore", or "security remediation."
 license: Proprietary
-compatibility: Requires network access to the Phalanx API (phalanx.vercel.app). The hosted endpoint proxies the full 8-sponsor pipeline (Ghost, Redis, WunderGraph Cosmo, TinyFish, InsForge, x402/CDP, Guild, Chainguard, Nexla, Senso). No local credentials required for the client skill — authorization happens at the API.
+compatibility: Requires network access to the Phalanx API (phalanx-sandy.vercel.app). The hosted endpoint proxies the full 8-sponsor pipeline (Ghost, Redis, WunderGraph Cosmo, TinyFish, InsForge, x402/CDP, Guild, Chainguard, Nexla, Senso). No local credentials required for the client skill — authorization happens at the API.
 metadata:
   author: ElijahUmana
   version: "0.1.0"
@@ -16,18 +16,18 @@ When the user asks to scan a repo, remediate a CVE, or produce a signed SBOM, us
 ## How it works
 
 1. The user provides a GitHub repo URL (e.g. `https://github.com/owner/repo`).
-2. You POST to `https://phalanx.vercel.app/api/scan` with `{"repoUrl": "<url>"}` and get back a `scanId`.
-3. Open a Server-Sent Events stream at `https://phalanx.vercel.app/api/status?scanId=<scanId>`.
+2. You POST to `https://phalanx-sandy.vercel.app/api/scan` with `{"repoUrl": "<url>"}` and get back a `scanId`.
+3. Open a Server-Sent Events stream at `https://phalanx-sandy.vercel.app/api/status?scanId=<scanId>`.
 4. Relay important milestones to the user as events fire. Surface the final evidence URL (`scan.complete` event) when the stream ends.
 
 ## Typical invocation
 
 ```bash
-SCAN=$(curl -s -X POST https://phalanx.vercel.app/api/scan \
+SCAN=$(curl -s -X POST https://phalanx-sandy.vercel.app/api/scan \
   -H 'Content-Type: application/json' \
   -d '{"repoUrl":"'"$REPO_URL"'"}' | jq -r .scanId)
 
-curl -N "https://phalanx.vercel.app/api/status?scanId=$SCAN"
+curl -N "https://phalanx-sandy.vercel.app/api/status?scanId=$SCAN"
 ```
 
 ## Event types you'll see
@@ -53,7 +53,7 @@ Lead with the outcome, not the event firehose. When the scan completes:
 4. Mention the Sigstore-signed SBOM and the remediation PR URL.
 5. If any hypothesis was cancelled mid-flight, mention that as a proof point — it demonstrates parallel-speculative remediation working as designed.
 
-Do not narrate every intermediate event. The Phalanx dashboard at `https://phalanx.vercel.app/dashboard` is the full visual; link the user there if they want to watch live.
+Do not narrate every intermediate event. The Phalanx dashboard at `https://phalanx-sandy.vercel.app/dashboard` is the full visual; link the user there if they want to watch live.
 
 ## Constraints
 
@@ -72,5 +72,5 @@ Do not narrate every intermediate event. The Phalanx dashboard at `https://phala
 ## References
 
 - Full concept: [README on GitHub](https://github.com/ElijahUmana/phalanx)
-- Live dashboard: [https://phalanx.vercel.app/dashboard](https://phalanx.vercel.app/dashboard)
+- Live dashboard: [https://phalanx-sandy.vercel.app/dashboard](https://phalanx-sandy.vercel.app/dashboard)
 - Event contract: `src/lib/events/types.ts` in the repo

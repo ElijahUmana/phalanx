@@ -109,10 +109,15 @@ All env vars from `.env.example` must be set in the Vercel project dashboard. Re
 Phalanx is published as a [shipables](https://agentskills.io) skill so other AI agents can run on-demand CVE scans end-to-end:
 
 ```bash
-npx @senso-ai/shipables install phalanx
+npx shipables install ElijahUmana/phalanx
 ```
 
-See `skills/phalanx/SKILL.md` for the skill definition.
+Skill page: [codeables.dev/skills/ElijahUmana/phalanx](https://codeables.dev/skills/ElijahUmana/phalanx). Definition in `skills/phalanx/SKILL.md`.
+
+## Live demo
+
+- Dashboard: [phalanx-sandy.vercel.app/dashboard](https://phalanx-sandy.vercel.app/dashboard)
+- `POST /api/scan` + SSE `/api/status?scanId=…` — verified end-to-end on Vercel (52 events across 24 types per scan, `scan.complete` fires in ~50s against a public GitHub repo).
 
 ## License
 
