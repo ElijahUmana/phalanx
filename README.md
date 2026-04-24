@@ -106,7 +106,14 @@ All env vars from `.env.example` must be set in the Vercel project dashboard. Re
 
 ## Install as a skill
 
-Phalanx ships as an [agentskills.io](https://agentskills.io) skill so other AI coding agents can run on-demand CVE scans. The skill definition is at `skills/phalanx/SKILL.md` — it drives the hosted API at `phalanx-sandy.vercel.app` with no local credentials required.
+Phalanx is published as a [shipables](https://agentskills.io) skill. Any AI coding agent can install and run CVE scans:
+
+```bash
+shipables install ElijahUmana/phalanx
+shipables install ElijahUmana/phalanx --claude   # Claude Code specific
+```
+
+The skill drives the hosted API at `phalanx-sandy.vercel.app` — no local credentials required. Definition in `skills/phalanx/SKILL.md`.
 
 ## Live demo
 
