@@ -6,7 +6,7 @@ Every modern application is built on open-source libraries. A single vulnerabili
 
 Phalanx eliminates that window. It **detects** the vulnerability from the open web, **tests multiple fixes simultaneously** by forking your entire dependency database into parallel copies, **cancels the dead ends mid-flight** when it identifies false positives, and **ships the winning fix** with cryptographic proof that every step was audited and every artifact is verified.
 
-**[Live Dashboard](https://phalanx-sandy.vercel.app/dashboard)** | **[Install as Skill](https://github.com/ElijahUmana/phalanx/tree/main/skills/phalanx)** | **[Demo Target Repo](https://github.com/ElijahUmana/phalanx-demo-target)**
+**[GitHub](https://github.com/ElijahUmana/phalanx)** | **[Install as Skill](https://github.com/ElijahUmana/phalanx/tree/main/skills/phalanx)** | **[Demo Target Repo](https://github.com/ElijahUmana/phalanx-demo-target)**
 
 ---
 
