@@ -1,0 +1,124 @@
+syntax = "proto3";
+package service.v1;
+
+import "google/protobuf/wrappers.proto";
+
+// Service definition for ServiceV1
+service ServiceV1 {
+  // Lookup CVE entity by id
+  rpc LookupCVEById(LookupCVEByIdRequest) returns (LookupCVEByIdResponse) {}
+  rpc QueryPatchProviders(QueryPatchProvidersRequest) returns (QueryPatchProvidersResponse) {}
+  rpc QueryRecommendedStrategy(QueryRecommendedStrategyRequest) returns (QueryRecommendedStrategyResponse) {}
+  rpc QueryRemediationOptions(QueryRemediationOptionsRequest) returns (QueryRemediationOptionsResponse) {}
+  rpc QueryX402Listings(QueryX402ListingsRequest) returns (QueryX402ListingsResponse) {}
+}
+
+// Key message for CVE entity lookup
+message LookupCVEByIdRequestKey {
+  // Key field for CVE entity lookup.
+  string id = 1;
+}
+
+// Request message for CVE entity lookup.
+message LookupCVEByIdRequest {
+  /*
+   * List of keys to look up CVE entities.
+   * Order matters - each key maps to one entity in LookupCVEByIdResponse.
+   */
+  repeated LookupCVEByIdRequestKey keys = 1;
+}
+
+// Response message for CVE entity lookup.
+message LookupCVEByIdResponse {
+  /*
+   * List of CVE entities in the same order as the keys in LookupCVEByIdRequest.
+   * Always return the same number of entities as keys. Use null for entities that cannot be found.
+   * 
+   * Example:
+   *   LookupUserByIdRequest:
+   *     keys:
+   *       - id: 1
+   *       - id: 2
+   *   LookupUserByIdResponse:
+   *     result:
+   *       - id: 1 # User with id 1 found
+   *       - null  # User with id 2 not found
+   */
+  repeated CVE result = 1;
+}
+
+// Request message for remediationOptions operation.
+message QueryRemediationOptionsRequest {
+  string cve_id = 1;
+}
+// Response message for remediationOptions operation.
+message QueryRemediationOptionsResponse {
+  repeated RemediationOption remediation_options = 1;
+}
+// Request message for patchProviders operation.
+message QueryPatchProvidersRequest {
+  string package_name = 1;
+}
+// Response message for patchProviders operation.
+message QueryPatchProvidersResponse {
+  repeated PatchProvider patch_providers = 1;
+}
+// Request message for x402Listings operation.
+message QueryX402ListingsRequest {
+  string for_cve_id = 1;
+}
+// Response message for x402Listings operation.
+message QueryX402ListingsResponse {
+  repeated X402Listing x_402_listings = 1;
+}
+// Request message for recommendedStrategy operation.
+message QueryRecommendedStrategyRequest {
+  string cve_id = 1;
+}
+// Response message for recommendedStrategy operation.
+message QueryRecommendedStrategyResponse {
+  RemediationOption recommended_strategy = 1;
+}
+
+message CVE {
+  string id = 1;
+  repeated RemediationOption remediation_options = 2;
+  RemediationOption recommended_remediation = 3;
+}
+
+message RemediationOption {
+  string id = 1;
+  string cve_id = 2;
+  RemediationStrategy strategy = 3;
+  google.protobuf.StringValue target_version = 4;
+  google.protobuf.StringValue target_image = 5;
+  double confidence = 6;
+  string provider = 7;
+  double cost_usd = 8;
+  string description = 9;
+  X402Listing x_402_listing = 10;
+}
+
+message PatchProvider {
+  string name = 1;
+  string url = 2;
+  bool verified = 3;
+  bool sbom_signed = 4;
+}
+
+message X402Listing {
+  string id = 1;
+  string provider_url = 2;
+  double price_usd = 3;
+  string description = 4;
+  repeated string accepted_networks = 5;
+}
+
+enum RemediationStrategy {
+  REMEDIATION_STRATEGY_UNSPECIFIED = 0;
+  REMEDIATION_STRATEGY_UPGRADE = 1;
+  REMEDIATION_STRATEGY_PIN = 2;
+  REMEDIATION_STRATEGY_CHAINGUARD_SWAP = 3;
+  REMEDIATION_STRATEGY_VENDOR_PATCH = 4;
+  REMEDIATION_STRATEGY_ROLLBACK = 5;
+}

@@ -1,0 +1,19 @@
+{
+    "name": "phalanx-mcp-gateway",
+    "version": "1.0.0",
+    "private": true,
+    "description": "MCP Gateway that exposes Phalanx persisted GraphQL operations as per-tool OAuth-scoped MCP tools",
+    "type": "commonjs",
+    "scripts": {
+        "start": "tsx src/server.ts",
+        "start:http": "tsx src/http.ts",
+        "build": "tsc -p ."
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.21.0",
+        "fastify": "^5.4.0",
+        "tsx": "^4.20.3",
+        "typescript": "^5.8.3",
+        "zod": "^3.23.8"
+    }
+}

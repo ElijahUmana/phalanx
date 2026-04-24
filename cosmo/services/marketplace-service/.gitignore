@@ -1,0 +1,14 @@
+# Local dev artifacts only. The generated proto + TS in src/proto/ and
+# src/generated/ are intentionally checked in — graph.yaml references them
+# for wgc router compose (local supergraph mode — no control plane).
+
+node_modules/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+
+# Cosmo Router binary (if downloaded here; we use cosmo/router/bin/ instead)
+router/bin/

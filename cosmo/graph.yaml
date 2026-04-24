@@ -1,0 +1,41 @@
+# Phalanx supergraph composition manifest — Task #2
+#
+# Composes 4 standalone Connect gRPC subgraphs into a single federated graph
+# with per-tool OAuth scopes (@requiresScopes) enforced at the router.
+#
+# Compose:
+#   wgc router compose -i ./graph.yaml -o ./config.json
+#
+# Each subgraph runs independently on its own port (4001-4004). The router
+# dispatches requests across them by parsing incoming GraphQL queries, honoring
+# @key-based entity lookups for cross-subgraph joins.
+
+version: 1
+subgraphs:
+  - name: sbom-service
+    routing_url: dns:///localhost:4001
+    grpc:
+      schema_file: ./services/sbom-service/src/graph/schema.graphql
+      proto_file: ./services/sbom-service/src/proto/service/v1/service.proto
+      mapping_file: ./services/sbom-service/src/proto/service/v1/mapping.json
+
+  - name: deployment-service
+    routing_url: dns:///localhost:4002
+    grpc:
+      schema_file: ./services/deployment-service/src/graph/schema.graphql
+      proto_file: ./services/deployment-service/src/proto/service/v1/service.proto
+      mapping_file: ./services/deployment-service/src/proto/service/v1/mapping.json
+
+  - name: risk-service
+    routing_url: dns:///localhost:4003
+    grpc:
+      schema_file: ./services/risk-service/src/graph/schema.graphql
+      proto_file: ./services/risk-service/src/proto/service/v1/service.proto
+      mapping_file: ./services/risk-service/src/proto/service/v1/mapping.json
+
+  - name: marketplace-service
+    routing_url: dns:///localhost:4004
+    grpc:
+      schema_file: ./services/marketplace-service/src/graph/schema.graphql
+      proto_file: ./services/marketplace-service/src/proto/service/v1/service.proto
+      mapping_file: ./services/marketplace-service/src/proto/service/v1/mapping.json

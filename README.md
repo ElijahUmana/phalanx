@@ -2,8 +2,6 @@
 
 **Parallel-fork CVE response fabric.** An autonomous agent fleet that detects critical CVEs, forks dependency state into N parallel remediation hypotheses via Ghost zero-copy forking, coordinates agents via Redis Streams/Pub/Sub, validates each in an isolated InsForge backend, cancels false positives mid-flight, and ships the winner with cryptographic provenance.
 
-See `../FINAL-CONCEPT.md` for the full concept brief (problem sizing, 8-sponsor rationale, unit economics, demo script).
-
 ## Why this is structurally different from Snyk Agent Fix
 
 Snyk does *single-hypothesis* auto-patch via API. Phalanx is *N-hypothesis parallel speculation* with live validation, mid-flight cancellation on false positives, autonomous web-action patch procurement, bidirectional customer integration, and a cryptographically-signed evidence chain. Not faster Snyk — a structurally different shape of work that requires eight sponsor primitives, each load-bearing.

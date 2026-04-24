@@ -1,0 +1,46 @@
+extend schema
+    @link(url: "https://specs.apollo.dev/federation/v2.5",
+          import: ["@key", "@shareable", "@external", "@requiresScopes", "@authenticated"])
+
+"""
+Deployment subgraph — tracks which versions are running in each environment.
+Reads require read:deployment. Staging writes require write:staging.
+Production rollout requires write:production (human-gated).
+"""
+type Query {
+    deployments(repoId: ID!): [Deployment!]! @requiresScopes(scopes: [["read:deployment"]])
+    deployment(id: ID!): Deployment @requiresScopes(scopes: [["read:deployment"]])
+    activeVersion(service: String!, environment: String!): String @requiresScopes(scopes: [["read:deployment"]])
+}
+
+type Mutation {
+    stageDeployment(input: StageDeploymentInput!): Deployment! @requiresScopes(scopes: [["write:staging"]])
+    rollout(deploymentId: ID!): DeploymentResult! @requiresScopes(scopes: [["write:production"]])
+}
+
+type Deployment @key(fields: "id") {
+    id: ID!
+    repoId: ID!
+    environment: String!
+    version: String!
+    deployedAt: String!
+    deployedBy: String!
+    affectedServices: [String!]!
+    status: String!
+    sbomId: ID
+    hypothesisId: ID
+}
+
+type DeploymentResult {
+    deploymentId: ID!
+    success: Boolean!
+    message: String!
+    approvalRequired: Boolean!
+}
+
+input StageDeploymentInput {
+    repoId: ID!
+    version: String!
+    hypothesisId: ID
+    affectedServices: [String!]!
+}

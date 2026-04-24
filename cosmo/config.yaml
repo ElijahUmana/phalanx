@@ -1,0 +1,44 @@
+# Cosmo Router runtime config — Phalanx supergraph
+#
+# Auth: JWT signed by the phalanx jwt-mock issuer at localhost:4005.
+# Authorization: requires authenticated requests. Rejects queries whose fields
+# carry @requiresScopes the caller's JWT does not satisfy.
+#
+# Run:
+#   ROUTER_CONFIG_PATH=./config.json ./router/bin/router -config ./config.yaml
+
+version: "1"
+listen_addr: "0.0.0.0:3002"
+dev_mode: true
+
+execution_config:
+  file:
+    path: "./config.json"
+    watch: true
+
+graph:
+  token: ""
+
+telemetry:
+  metrics:
+    otlp:
+      enabled: false
+
+# JWT authentication via JWKS from the phalanx jwt-mock issuer.
+# scope_claim: we read the space-separated OAuth 2.0 `scope` claim (default).
+# The router parses it and matches each scope against @requiresScopes on every
+# field in the incoming query.
+authentication:
+  jwt:
+    jwks:
+      - url: "http://localhost:4005/.well-known/jwks.json"
+        refresh_interval: 300s
+        algorithms:
+          - RS256
+    scope_claim: "scope"
+    header_name: "Authorization"
+    header_value_prefix: "Bearer"
+
+authorization:
+  require_authentication: true
+  reject_operation_if_unauthorized: true

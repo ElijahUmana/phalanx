@@ -1,0 +1,28 @@
+node_modules
+.next
+.git
+.env
+.env.local
+.env.*.local
+tmp-seed
+
+# Cosmo local dev artifacts — the supergraph runs out-of-process and doesn't
+# belong in the Next.js runtime image. Each subgraph has its own deployment.
+cosmo/**/node_modules
+cosmo/router/bin/router
+cosmo/router/bin/LICENSE
+cosmo/services/*/dist
+
+# Per-tool agent config / local state (never ship in image)
+.insforge
+.agent
+.agents
+.claude
+.vercel
+.vscode
+.idea
+
+# Build scratch
+*.log
+.DS_Store
+coverage

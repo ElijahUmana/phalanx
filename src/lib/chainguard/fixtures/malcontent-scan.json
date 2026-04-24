@@ -1,0 +1,20 @@
+{
+  "hits": [
+    {
+      "path": "candidate/patched-express-4.19.2/index.js",
+      "ruleName": "eval_dynamic_code",
+      "severity": "LOW",
+      "category": "code_execution",
+      "description": "Dynamic code evaluation via Function() constructor — expected for legacy template rendering."
+    },
+    {
+      "path": "candidate/patched-express-4.19.2/node_modules/qs/lib/parse.js",
+      "ruleName": "object_assign_recursive",
+      "severity": "INFORMATIONAL",
+      "category": "object_manipulation",
+      "description": "Recursive Object.assign — known benign pattern in qs parser."
+    }
+  ],
+  "riskScore": 1,
+  "summary": "2 hits (0 CRITICAL, 0 HIGH) — vendor patch is clean for production use."
+}

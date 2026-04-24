@@ -1,0 +1,57 @@
+extend schema
+    @link(url: "https://specs.apollo.dev/federation/v2.5",
+          import: ["@key", "@shareable", "@external", "@requiresScopes", "@authenticated"])
+
+"""
+Marketplace subgraph — owns remediation options (upgrade, pin, Chainguard swap, vendor patch)
+and integrations with agentic.market for x402 micropayments.
+Contributes CVE.remediationOptions + CVE.recommendedRemediation via federation entity merge.
+"""
+type Query {
+    remediationOptions(cveId: ID!): [RemediationOption!]! @requiresScopes(scopes: [["read:marketplace"]])
+    patchProviders(packageName: String!): [PatchProvider!]! @requiresScopes(scopes: [["read:marketplace"]])
+    x402Listings(forCveId: ID!): [X402Listing!]! @requiresScopes(scopes: [["read:marketplace"]])
+    recommendedStrategy(cveId: ID!): RemediationOption @requiresScopes(scopes: [["read:marketplace"]])
+}
+
+type RemediationOption {
+    id: ID!
+    cveId: ID!
+    strategy: RemediationStrategy!
+    targetVersion: String
+    targetImage: String
+    confidence: Float!
+    provider: String!
+    costUsd: Float!
+    description: String!
+    x402Listing: X402Listing
+}
+
+type CVE @key(fields: "id") {
+    id: ID!
+    remediationOptions: [RemediationOption!]! @requiresScopes(scopes: [["read:marketplace"]])
+    recommendedRemediation: RemediationOption @requiresScopes(scopes: [["read:marketplace"]])
+}
+
+type PatchProvider {
+    name: String!
+    url: String!
+    verified: Boolean!
+    sbomSigned: Boolean!
+}
+
+type X402Listing {
+    id: ID!
+    providerUrl: String!
+    priceUsd: Float!
+    description: String!
+    acceptedNetworks: [String!]!
+}
+
+enum RemediationStrategy {
+    UPGRADE
+    PIN
+    CHAINGUARD_SWAP
+    VENDOR_PATCH
+    ROLLBACK
+}

@@ -1,0 +1,67 @@
+extend schema
+    @link(url: "https://specs.apollo.dev/federation/v2.5",
+          import: ["@key", "@shareable", "@external", "@requiresScopes", "@authenticated"])
+
+"""
+Risk subgraph — owns CVE records, risk scores, blast radius analysis.
+All fields require read:risk. Analyst agents hold this scope.
+Contributes Dependency.risks + Dependency.riskSummary via federation entity merge.
+"""
+type Query {
+    cve(id: ID!): CVE @requiresScopes(scopes: [["read:risk"]])
+    cvesBySeverity(minScore: Float!): [CVE!]! @requiresScopes(scopes: [["read:risk"]])
+    riskScore(cveId: ID!, repoId: ID!): RiskScore @requiresScopes(scopes: [["read:risk"]])
+    blastRadius(cveId: ID!, repoId: ID!): BlastRadius! @requiresScopes(scopes: [["read:risk"]])
+    cvesForDependency(dependencyId: ID!): [CVE!]! @requiresScopes(scopes: [["read:risk"]])
+}
+
+type CVE @key(fields: "id") {
+    id: ID!
+    cvssScore: Float!
+    severity: Severity!
+    publishedAt: String!
+    description: String!
+    affectedPackages: [String!]!
+    exploitInWild: Boolean!
+    nvdUrl: String
+}
+
+type Dependency @key(fields: "id") {
+    id: ID!
+    risks: [CVE!]! @requiresScopes(scopes: [["read:risk"]])
+    riskSummary: DependencyRiskSummary @requiresScopes(scopes: [["read:risk"]])
+}
+
+type RiskScore {
+    cveId: ID!
+    repoId: ID!
+    score: Float!
+    reasoning: String!
+    affectedComponentCount: Int!
+    transitiveImpact: Int!
+}
+
+type BlastRadius {
+    cveId: ID!
+    repoId: ID!
+    servicesAffected: Int!
+    transitiveDepth: Int!
+    estimatedUsers: Int!
+    criticalPath: [String!]!
+}
+
+type DependencyRiskSummary {
+    dependencyId: ID!
+    maxCvssScore: Float!
+    criticalCount: Int!
+    highCount: Int!
+    totalCount: Int!
+}
+
+enum Severity {
+    CRITICAL
+    HIGH
+    MEDIUM
+    LOW
+    INFORMATIONAL
+}

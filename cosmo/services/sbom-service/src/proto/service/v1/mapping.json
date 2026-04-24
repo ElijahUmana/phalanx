@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "service": "ServiceV1",
+  "operationMappings": [
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "sbom",
+      "mapped": "QuerySbom",
+      "request": "QuerySbomRequest",
+      "response": "QuerySbomResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "dependencyTree",
+      "mapped": "QueryDependencyTree",
+      "request": "QueryDependencyTreeRequest",
+      "response": "QueryDependencyTreeResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "vulnerableDependencies",
+      "mapped": "QueryVulnerableDependencies",
+      "request": "QueryVulnerableDependenciesRequest",
+      "response": "QueryVulnerableDependenciesResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "dependency",
+      "mapped": "QueryDependency",
+      "request": "QueryDependencyRequest",
+      "response": "QueryDependencyResponse"
+    }
+  ],
+  "entityMappings": [
+    {
+      "typeName": "SBOM",
+      "kind": "entity",
+      "key": "id",
+      "rpc": "LookupSBOMById",
+      "request": "LookupSBOMByIdRequest",
+      "response": "LookupSBOMByIdResponse",
+      "requiredFieldMappings": []
+    },
+    {
+      "typeName": "Dependency",
+      "kind": "entity",
+      "key": "id",
+      "rpc": "LookupDependencyById",
+      "request": "LookupDependencyByIdRequest",
+      "response": "LookupDependencyByIdResponse",
+      "requiredFieldMappings": []
+    }
+  ],
+  "typeFieldMappings": [
+    {
+      "type": "Query",
+      "fieldMappings": [
+        {
+          "original": "sbom",
+          "mapped": "sbom",
+          "argumentMappings": [
+            {
+              "original": "repoId",
+              "mapped": "repo_id"
+            }
+          ]
+        },
+        {
+          "original": "dependencyTree",
+          "mapped": "dependency_tree",
+          "argumentMappings": [
+            {
+              "original": "repoId",
+              "mapped": "repo_id"
+            },
+            {
+              "original": "depth",
+              "mapped": "depth"
+            }
+          ]
+        },
+        {
+          "original": "vulnerableDependencies",
+          "mapped": "vulnerable_dependencies",
+          "argumentMappings": [
+            {
+              "original": "cveId",
+              "mapped": "cve_id"
+            }
+          ]
+        },
+        {
+          "original": "dependency",
+          "mapped": "dependency",
+          "argumentMappings": [
+            {
+              "original": "id",
+              "mapped": "id"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "SBOM",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "repoId",
+          "mapped": "repo_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "generatedAt",
+          "mapped": "generated_at",
+          "argumentMappings": []
+        },
+        {
+          "original": "signedBy",
+          "mapped": "signed_by",
+          "argumentMappings": []
+        },
+        {
+          "original": "sigstoreBundleUrl",
+          "mapped": "sigstore_bundle_url",
+          "argumentMappings": []
+        },
+        {
+          "original": "slsaLevel",
+          "mapped": "slsa_level",
+          "argumentMappings": []
+        },
+        {
+          "original": "componentCount",
+          "mapped": "component_count",
+          "argumentMappings": []
+        },
+        {
+          "original": "components",
+          "mapped": "components",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "Dependency",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "name",
+          "mapped": "name",
+          "argumentMappings": []
+        },
+        {
+          "original": "version",
+          "mapped": "version",
+          "argumentMappings": []
+        },
+        {
+          "original": "ecosystem",
+          "mapped": "ecosystem",
+          "argumentMappings": []
+        },
+        {
+          "original": "transitive",
+          "mapped": "transitive",
+          "argumentMappings": []
+        },
+        {
+          "original": "depth",
+          "mapped": "depth",
+          "argumentMappings": []
+        },
+        {
+          "original": "license",
+          "mapped": "license",
+          "argumentMappings": []
+        },
+        {
+          "original": "parentId",
+          "mapped": "parent_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "sha256",
+          "mapped": "sha_256",
+          "argumentMappings": []
+        }
+      ]
+    }
+  ],
+  "enumMappings": [],
+  "resolveMappings": []
+}

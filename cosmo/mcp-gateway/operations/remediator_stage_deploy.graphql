@@ -1,0 +1,12 @@
+mutation RemediatorStageDeploy($input: StageDeploymentInput!) {
+    stageDeployment(input: $input) {
+        id
+        repoId
+        environment
+        version
+        deployedAt
+        status
+        affectedServices
+        hypothesisId
+    }
+}

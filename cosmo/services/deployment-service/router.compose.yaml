@@ -1,0 +1,8 @@
+version: 1
+subgraphs:
+  - name: service
+    routing_url: dns:///localhost:4011
+    grpc:
+      schema_file: ./src/graph/schema.graphql
+      proto_file: ./src/proto/service/v1/service.proto
+      mapping_file: ./src/proto/service/v1/mapping.json

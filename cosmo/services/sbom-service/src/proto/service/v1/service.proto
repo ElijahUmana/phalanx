@@ -1,0 +1,141 @@
+syntax = "proto3";
+package service.v1;
+
+import "google/protobuf/wrappers.proto";
+
+// Service definition for ServiceV1
+service ServiceV1 {
+  // Lookup Dependency entity by id
+  rpc LookupDependencyById(LookupDependencyByIdRequest) returns (LookupDependencyByIdResponse) {}
+  // Lookup SBOM entity by id
+  rpc LookupSBOMById(LookupSBOMByIdRequest) returns (LookupSBOMByIdResponse) {}
+  rpc QueryDependency(QueryDependencyRequest) returns (QueryDependencyResponse) {}
+  rpc QueryDependencyTree(QueryDependencyTreeRequest) returns (QueryDependencyTreeResponse) {}
+  rpc QuerySbom(QuerySbomRequest) returns (QuerySbomResponse) {}
+  rpc QueryVulnerableDependencies(QueryVulnerableDependenciesRequest) returns (QueryVulnerableDependenciesResponse) {}
+}
+
+// Key message for SBOM entity lookup
+message LookupSBOMByIdRequestKey {
+  // Key field for SBOM entity lookup.
+  string id = 1;
+}
+
+// Request message for SBOM entity lookup.
+message LookupSBOMByIdRequest {
+  /*
+   * List of keys to look up SBOM entities.
+   * Order matters - each key maps to one entity in LookupSBOMByIdResponse.
+   */
+  repeated LookupSBOMByIdRequestKey keys = 1;
+}
+
+// Response message for SBOM entity lookup.
+message LookupSBOMByIdResponse {
+  /*
+   * List of SBOM entities in the same order as the keys in LookupSBOMByIdRequest.
+   * Always return the same number of entities as keys. Use null for entities that cannot be found.
+   * 
+   * Example:
+   *   LookupUserByIdRequest:
+   *     keys:
+   *       - id: 1
+   *       - id: 2
+   *   LookupUserByIdResponse:
+   *     result:
+   *       - id: 1 # User with id 1 found
+   *       - null  # User with id 2 not found
+   */
+  repeated SBOM result = 1;
+}
+
+// Key message for Dependency entity lookup
+message LookupDependencyByIdRequestKey {
+  // Key field for Dependency entity lookup.
+  string id = 1;
+}
+
+// Request message for Dependency entity lookup.
+message LookupDependencyByIdRequest {
+  /*
+   * List of keys to look up Dependency entities.
+   * Order matters - each key maps to one entity in LookupDependencyByIdResponse.
+   */
+  repeated LookupDependencyByIdRequestKey keys = 1;
+}
+
+// Response message for Dependency entity lookup.
+message LookupDependencyByIdResponse {
+  /*
+   * List of Dependency entities in the same order as the keys in LookupDependencyByIdRequest.
+   * Always return the same number of entities as keys. Use null for entities that cannot be found.
+   * 
+   * Example:
+   *   LookupUserByIdRequest:
+   *     keys:
+   *       - id: 1
+   *       - id: 2
+   *   LookupUserByIdResponse:
+   *     result:
+   *       - id: 1 # User with id 1 found
+   *       - null  # User with id 2 not found
+   */
+  repeated Dependency result = 1;
+}
+
+// Request message for sbom operation.
+message QuerySbomRequest {
+  string repo_id = 1;
+}
+// Response message for sbom operation.
+message QuerySbomResponse {
+  SBOM sbom = 1;
+}
+// Request message for dependencyTree operation.
+message QueryDependencyTreeRequest {
+  string repo_id = 1;
+  google.protobuf.Int32Value depth = 2;
+}
+// Response message for dependencyTree operation.
+message QueryDependencyTreeResponse {
+  repeated Dependency dependency_tree = 1;
+}
+// Request message for vulnerableDependencies operation.
+message QueryVulnerableDependenciesRequest {
+  string cve_id = 1;
+}
+// Response message for vulnerableDependencies operation.
+message QueryVulnerableDependenciesResponse {
+  repeated Dependency vulnerable_dependencies = 1;
+}
+// Request message for dependency operation.
+message QueryDependencyRequest {
+  string id = 1;
+}
+// Response message for dependency operation.
+message QueryDependencyResponse {
+  Dependency dependency = 1;
+}
+
+message SBOM {
+  string id = 1;
+  string repo_id = 2;
+  string generated_at = 3;
+  google.protobuf.StringValue signed_by = 4;
+  google.protobuf.StringValue sigstore_bundle_url = 5;
+  google.protobuf.Int32Value slsa_level = 6;
+  int32 component_count = 7;
+  repeated Dependency components = 8;
+}
+
+message Dependency {
+  string id = 1;
+  string name = 2;
+  string version = 3;
+  string ecosystem = 4;
+  bool transitive = 5;
+  int32 depth = 6;
+  google.protobuf.StringValue license = 7;
+  google.protobuf.StringValue parent_id = 8;
+  google.protobuf.StringValue sha_256 = 9;
+}

@@ -1,0 +1,85 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "cgr.dev/chainguard/node@sha256:9e33f02ba42ad1da39f4b6f1b24fe3755127bcdd1b9721dc871863e03cef3c42",
+  "documentNamespace": "https://cgr.dev/chainguard/node/sbom-fixture",
+  "creationInfo": {
+    "created": "2026-04-24T10:15:00Z",
+    "creators": ["Tool: chainguard-apko", "Organization: Chainguard"]
+  },
+  "metadata": {
+    "slsa_level": 3,
+    "signed_by": "chainguard-ci@chainguard.dev",
+    "sigstore_bundle": "https://rekor.sigstore.dev/api/v1/log/entries/fixture-cached"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-ca-certificates",
+      "name": "ca-certificates",
+      "versionInfo": "20240215",
+      "downloadLocation": "NOASSERTION",
+      "licenseDeclared": "MPL-2.0",
+      "supplier": "Organization: Chainguard",
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-Package-nodejs",
+      "name": "nodejs",
+      "versionInfo": "22.14.0",
+      "downloadLocation": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "supplier": "Organization: Chainguard",
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-Package-libcrypto3",
+      "name": "libcrypto3",
+      "versionInfo": "3.4.1-r0",
+      "downloadLocation": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "supplier": "Organization: Chainguard",
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-Package-glibc",
+      "name": "glibc",
+      "versionInfo": "2.40-r5",
+      "downloadLocation": "NOASSERTION",
+      "licenseDeclared": "LGPL-2.1-or-later",
+      "supplier": "Organization: Chainguard",
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-Package-zlib",
+      "name": "zlib",
+      "versionInfo": "1.3.1-r2",
+      "downloadLocation": "NOASSERTION",
+      "licenseDeclared": "Zlib",
+      "supplier": "Organization: Chainguard",
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-nodejs"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-nodejs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-libcrypto3"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-nodejs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-glibc"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-nodejs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-zlib"
+    }
+  ]
+}

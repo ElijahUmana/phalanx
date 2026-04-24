@@ -1,0 +1,17 @@
+{
+    "name": "phalanx-jwt-mock",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Mock JWT issuer for Phalanx Cosmo router @requiresScopes demo",
+    "type": "commonjs",
+    "scripts": {
+        "start": "tsx src/server.ts",
+        "build": "tsc -p ."
+    },
+    "dependencies": {
+        "fastify": "^5.4.0",
+        "jose": "^5.9.6",
+        "tsx": "^4.20.3",
+        "typescript": "^5.8.3"
+    }
+}

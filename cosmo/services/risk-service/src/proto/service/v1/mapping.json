@@ -1,0 +1,319 @@
+{
+  "version": 1,
+  "service": "ServiceV1",
+  "operationMappings": [
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "cve",
+      "mapped": "QueryCve",
+      "request": "QueryCveRequest",
+      "response": "QueryCveResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "cvesBySeverity",
+      "mapped": "QueryCvesBySeverity",
+      "request": "QueryCvesBySeverityRequest",
+      "response": "QueryCvesBySeverityResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "riskScore",
+      "mapped": "QueryRiskScore",
+      "request": "QueryRiskScoreRequest",
+      "response": "QueryRiskScoreResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "blastRadius",
+      "mapped": "QueryBlastRadius",
+      "request": "QueryBlastRadiusRequest",
+      "response": "QueryBlastRadiusResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "cvesForDependency",
+      "mapped": "QueryCvesForDependency",
+      "request": "QueryCvesForDependencyRequest",
+      "response": "QueryCvesForDependencyResponse"
+    }
+  ],
+  "entityMappings": [
+    {
+      "typeName": "CVE",
+      "kind": "entity",
+      "key": "id",
+      "rpc": "LookupCVEById",
+      "request": "LookupCVEByIdRequest",
+      "response": "LookupCVEByIdResponse",
+      "requiredFieldMappings": []
+    },
+    {
+      "typeName": "Dependency",
+      "kind": "entity",
+      "key": "id",
+      "rpc": "LookupDependencyById",
+      "request": "LookupDependencyByIdRequest",
+      "response": "LookupDependencyByIdResponse",
+      "requiredFieldMappings": []
+    }
+  ],
+  "typeFieldMappings": [
+    {
+      "type": "Query",
+      "fieldMappings": [
+        {
+          "original": "cve",
+          "mapped": "cve",
+          "argumentMappings": [
+            {
+              "original": "id",
+              "mapped": "id"
+            }
+          ]
+        },
+        {
+          "original": "cvesBySeverity",
+          "mapped": "cves_by_severity",
+          "argumentMappings": [
+            {
+              "original": "minScore",
+              "mapped": "min_score"
+            }
+          ]
+        },
+        {
+          "original": "riskScore",
+          "mapped": "risk_score",
+          "argumentMappings": [
+            {
+              "original": "cveId",
+              "mapped": "cve_id"
+            },
+            {
+              "original": "repoId",
+              "mapped": "repo_id"
+            }
+          ]
+        },
+        {
+          "original": "blastRadius",
+          "mapped": "blast_radius",
+          "argumentMappings": [
+            {
+              "original": "cveId",
+              "mapped": "cve_id"
+            },
+            {
+              "original": "repoId",
+              "mapped": "repo_id"
+            }
+          ]
+        },
+        {
+          "original": "cvesForDependency",
+          "mapped": "cves_for_dependency",
+          "argumentMappings": [
+            {
+              "original": "dependencyId",
+              "mapped": "dependency_id"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "CVE",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "cvssScore",
+          "mapped": "cvss_score",
+          "argumentMappings": []
+        },
+        {
+          "original": "severity",
+          "mapped": "severity",
+          "argumentMappings": []
+        },
+        {
+          "original": "publishedAt",
+          "mapped": "published_at",
+          "argumentMappings": []
+        },
+        {
+          "original": "description",
+          "mapped": "description",
+          "argumentMappings": []
+        },
+        {
+          "original": "affectedPackages",
+          "mapped": "affected_packages",
+          "argumentMappings": []
+        },
+        {
+          "original": "exploitInWild",
+          "mapped": "exploit_in_wild",
+          "argumentMappings": []
+        },
+        {
+          "original": "nvdUrl",
+          "mapped": "nvd_url",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "Dependency",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "risks",
+          "mapped": "risks",
+          "argumentMappings": []
+        },
+        {
+          "original": "riskSummary",
+          "mapped": "risk_summary",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "RiskScore",
+      "fieldMappings": [
+        {
+          "original": "cveId",
+          "mapped": "cve_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "repoId",
+          "mapped": "repo_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "score",
+          "mapped": "score",
+          "argumentMappings": []
+        },
+        {
+          "original": "reasoning",
+          "mapped": "reasoning",
+          "argumentMappings": []
+        },
+        {
+          "original": "affectedComponentCount",
+          "mapped": "affected_component_count",
+          "argumentMappings": []
+        },
+        {
+          "original": "transitiveImpact",
+          "mapped": "transitive_impact",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "BlastRadius",
+      "fieldMappings": [
+        {
+          "original": "cveId",
+          "mapped": "cve_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "repoId",
+          "mapped": "repo_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "servicesAffected",
+          "mapped": "services_affected",
+          "argumentMappings": []
+        },
+        {
+          "original": "transitiveDepth",
+          "mapped": "transitive_depth",
+          "argumentMappings": []
+        },
+        {
+          "original": "estimatedUsers",
+          "mapped": "estimated_users",
+          "argumentMappings": []
+        },
+        {
+          "original": "criticalPath",
+          "mapped": "critical_path",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "DependencyRiskSummary",
+      "fieldMappings": [
+        {
+          "original": "dependencyId",
+          "mapped": "dependency_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "maxCvssScore",
+          "mapped": "max_cvss_score",
+          "argumentMappings": []
+        },
+        {
+          "original": "criticalCount",
+          "mapped": "critical_count",
+          "argumentMappings": []
+        },
+        {
+          "original": "highCount",
+          "mapped": "high_count",
+          "argumentMappings": []
+        },
+        {
+          "original": "totalCount",
+          "mapped": "total_count",
+          "argumentMappings": []
+        }
+      ]
+    }
+  ],
+  "enumMappings": [
+    {
+      "type": "Severity",
+      "values": [
+        {
+          "original": "CRITICAL",
+          "mapped": "SEVERITY_CRITICAL"
+        },
+        {
+          "original": "HIGH",
+          "mapped": "SEVERITY_HIGH"
+        },
+        {
+          "original": "MEDIUM",
+          "mapped": "SEVERITY_MEDIUM"
+        },
+        {
+          "original": "LOW",
+          "mapped": "SEVERITY_LOW"
+        },
+        {
+          "original": "INFORMATIONAL",
+          "mapped": "SEVERITY_INFORMATIONAL"
+        }
+      ]
+    }
+  ],
+  "resolveMappings": []
+}

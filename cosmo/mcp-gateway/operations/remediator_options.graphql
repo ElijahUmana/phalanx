@@ -1,0 +1,24 @@
+query RemediatorOptions($cveId: ID!) {
+    remediationOptions(cveId: $cveId) {
+        id
+        strategy
+        targetVersion
+        targetImage
+        confidence
+        provider
+        costUsd
+        description
+        x402Listing {
+            id
+            providerUrl
+            priceUsd
+            acceptedNetworks
+        }
+    }
+    recommendedStrategy(cveId: $cveId) {
+        id
+        strategy
+        confidence
+        description
+    }
+}

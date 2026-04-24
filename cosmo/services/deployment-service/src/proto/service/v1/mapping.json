@@ -1,0 +1,225 @@
+{
+  "version": 1,
+  "service": "ServiceV1",
+  "operationMappings": [
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "deployments",
+      "mapped": "QueryDeployments",
+      "request": "QueryDeploymentsRequest",
+      "response": "QueryDeploymentsResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "deployment",
+      "mapped": "QueryDeployment",
+      "request": "QueryDeploymentRequest",
+      "response": "QueryDeploymentResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "activeVersion",
+      "mapped": "QueryActiveVersion",
+      "request": "QueryActiveVersionRequest",
+      "response": "QueryActiveVersionResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_MUTATION",
+      "original": "stageDeployment",
+      "mapped": "MutationStageDeployment",
+      "request": "MutationStageDeploymentRequest",
+      "response": "MutationStageDeploymentResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_MUTATION",
+      "original": "rollout",
+      "mapped": "MutationRollout",
+      "request": "MutationRolloutRequest",
+      "response": "MutationRolloutResponse"
+    }
+  ],
+  "entityMappings": [
+    {
+      "typeName": "Deployment",
+      "kind": "entity",
+      "key": "id",
+      "rpc": "LookupDeploymentById",
+      "request": "LookupDeploymentByIdRequest",
+      "response": "LookupDeploymentByIdResponse",
+      "requiredFieldMappings": []
+    }
+  ],
+  "typeFieldMappings": [
+    {
+      "type": "Query",
+      "fieldMappings": [
+        {
+          "original": "deployments",
+          "mapped": "deployments",
+          "argumentMappings": [
+            {
+              "original": "repoId",
+              "mapped": "repo_id"
+            }
+          ]
+        },
+        {
+          "original": "deployment",
+          "mapped": "deployment",
+          "argumentMappings": [
+            {
+              "original": "id",
+              "mapped": "id"
+            }
+          ]
+        },
+        {
+          "original": "activeVersion",
+          "mapped": "active_version",
+          "argumentMappings": [
+            {
+              "original": "service",
+              "mapped": "service"
+            },
+            {
+              "original": "environment",
+              "mapped": "environment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Mutation",
+      "fieldMappings": [
+        {
+          "original": "stageDeployment",
+          "mapped": "stage_deployment",
+          "argumentMappings": [
+            {
+              "original": "input",
+              "mapped": "input"
+            }
+          ]
+        },
+        {
+          "original": "rollout",
+          "mapped": "rollout",
+          "argumentMappings": [
+            {
+              "original": "deploymentId",
+              "mapped": "deployment_id"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Deployment",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "repoId",
+          "mapped": "repo_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "environment",
+          "mapped": "environment",
+          "argumentMappings": []
+        },
+        {
+          "original": "version",
+          "mapped": "version",
+          "argumentMappings": []
+        },
+        {
+          "original": "deployedAt",
+          "mapped": "deployed_at",
+          "argumentMappings": []
+        },
+        {
+          "original": "deployedBy",
+          "mapped": "deployed_by",
+          "argumentMappings": []
+        },
+        {
+          "original": "affectedServices",
+          "mapped": "affected_services",
+          "argumentMappings": []
+        },
+        {
+          "original": "status",
+          "mapped": "status",
+          "argumentMappings": []
+        },
+        {
+          "original": "sbomId",
+          "mapped": "sbom_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "hypothesisId",
+          "mapped": "hypothesis_id",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "DeploymentResult",
+      "fieldMappings": [
+        {
+          "original": "deploymentId",
+          "mapped": "deployment_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "success",
+          "mapped": "success",
+          "argumentMappings": []
+        },
+        {
+          "original": "message",
+          "mapped": "message",
+          "argumentMappings": []
+        },
+        {
+          "original": "approvalRequired",
+          "mapped": "approval_required",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "StageDeploymentInput",
+      "fieldMappings": [
+        {
+          "original": "repoId",
+          "mapped": "repo_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "version",
+          "mapped": "version",
+          "argumentMappings": []
+        },
+        {
+          "original": "hypothesisId",
+          "mapped": "hypothesis_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "affectedServices",
+          "mapped": "affected_services",
+          "argumentMappings": []
+        }
+      ]
+    }
+  ],
+  "enumMappings": [],
+  "resolveMappings": []
+}

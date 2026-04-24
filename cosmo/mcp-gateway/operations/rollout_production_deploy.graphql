@@ -1,0 +1,8 @@
+mutation RolloutProductionDeploy($deploymentId: ID!) {
+    rollout(deploymentId: $deploymentId) {
+        deploymentId
+        success
+        message
+        approvalRequired
+    }
+}

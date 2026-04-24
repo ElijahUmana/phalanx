@@ -1,0 +1,19 @@
+query AnalystRiskScore($cveId: ID!, $repoId: ID!) {
+    cve(id: $cveId) {
+        id
+        cvssScore
+        severity
+        description
+        affectedPackages
+        exploitInWild
+        nvdUrl
+    }
+    riskScore(cveId: $cveId, repoId: $repoId) {
+        cveId
+        repoId
+        score
+        reasoning
+        affectedComponentCount
+        transitiveImpact
+    }
+}

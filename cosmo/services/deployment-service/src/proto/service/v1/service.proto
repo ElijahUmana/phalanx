@@ -1,0 +1,118 @@
+syntax = "proto3";
+package service.v1;
+
+import "google/protobuf/wrappers.proto";
+
+// Service definition for ServiceV1
+service ServiceV1 {
+  // Lookup Deployment entity by id
+  rpc LookupDeploymentById(LookupDeploymentByIdRequest) returns (LookupDeploymentByIdResponse) {}
+  rpc MutationRollout(MutationRolloutRequest) returns (MutationRolloutResponse) {}
+  rpc MutationStageDeployment(MutationStageDeploymentRequest) returns (MutationStageDeploymentResponse) {}
+  rpc QueryActiveVersion(QueryActiveVersionRequest) returns (QueryActiveVersionResponse) {}
+  rpc QueryDeployment(QueryDeploymentRequest) returns (QueryDeploymentResponse) {}
+  rpc QueryDeployments(QueryDeploymentsRequest) returns (QueryDeploymentsResponse) {}
+}
+
+// Key message for Deployment entity lookup
+message LookupDeploymentByIdRequestKey {
+  // Key field for Deployment entity lookup.
+  string id = 1;
+}
+
+// Request message for Deployment entity lookup.
+message LookupDeploymentByIdRequest {
+  /*
+   * List of keys to look up Deployment entities.
+   * Order matters - each key maps to one entity in LookupDeploymentByIdResponse.
+   */
+  repeated LookupDeploymentByIdRequestKey keys = 1;
+}
+
+// Response message for Deployment entity lookup.
+message LookupDeploymentByIdResponse {
+  /*
+   * List of Deployment entities in the same order as the keys in LookupDeploymentByIdRequest.
+   * Always return the same number of entities as keys. Use null for entities that cannot be found.
+   * 
+   * Example:
+   *   LookupUserByIdRequest:
+   *     keys:
+   *       - id: 1
+   *       - id: 2
+   *   LookupUserByIdResponse:
+   *     result:
+   *       - id: 1 # User with id 1 found
+   *       - null  # User with id 2 not found
+   */
+  repeated Deployment result = 1;
+}
+
+// Request message for deployments operation.
+message QueryDeploymentsRequest {
+  string repo_id = 1;
+}
+// Response message for deployments operation.
+message QueryDeploymentsResponse {
+  repeated Deployment deployments = 1;
+}
+// Request message for deployment operation.
+message QueryDeploymentRequest {
+  string id = 1;
+}
+// Response message for deployment operation.
+message QueryDeploymentResponse {
+  Deployment deployment = 1;
+}
+// Request message for activeVersion operation.
+message QueryActiveVersionRequest {
+  string service = 1;
+  string environment = 2;
+}
+// Response message for activeVersion operation.
+message QueryActiveVersionResponse {
+  google.protobuf.StringValue active_version = 1;
+}
+// Request message for stageDeployment operation.
+message MutationStageDeploymentRequest {
+  StageDeploymentInput input = 1;
+}
+// Response message for stageDeployment operation.
+message MutationStageDeploymentResponse {
+  Deployment stage_deployment = 1;
+}
+// Request message for rollout operation.
+message MutationRolloutRequest {
+  string deployment_id = 1;
+}
+// Response message for rollout operation.
+message MutationRolloutResponse {
+  DeploymentResult rollout = 1;
+}
+
+message Deployment {
+  string id = 1;
+  string repo_id = 2;
+  string environment = 3;
+  string version = 4;
+  string deployed_at = 5;
+  string deployed_by = 6;
+  repeated string affected_services = 7;
+  string status = 8;
+  google.protobuf.StringValue sbom_id = 9;
+  google.protobuf.StringValue hypothesis_id = 10;
+}
+
+message StageDeploymentInput {
+  string repo_id = 1;
+  string version = 2;
+  google.protobuf.StringValue hypothesis_id = 3;
+  repeated string affected_services = 4;
+}
+
+message DeploymentResult {
+  string deployment_id = 1;
+  bool success = 2;
+  string message = 3;
+  bool approval_required = 4;
+}

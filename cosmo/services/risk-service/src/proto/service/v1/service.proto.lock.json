@@ -1,0 +1,182 @@
+{
+  "version": "1.0.0",
+  "messages": {
+    "LookupCVEByIdRequestKey": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "LookupCVEByIdRequest": {
+      "fields": {
+        "keys": 1
+      }
+    },
+    "LookupCVEByIdResponse": {
+      "fields": {
+        "result": 1
+      }
+    },
+    "Query": {
+      "fields": {
+        "cve": 1,
+        "cvesBySeverity": 2,
+        "riskScore": 3,
+        "blastRadius": 4,
+        "cvesForDependency": 5
+      }
+    },
+    "QueryCveRequest": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "QueryCve": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "QueryCveResponse": {
+      "fields": {
+        "cve": 1
+      }
+    },
+    "QueryCvesBySeverityRequest": {
+      "fields": {
+        "min_score": 1
+      }
+    },
+    "QueryCvesBySeverity": {
+      "fields": {
+        "minScore": 1
+      }
+    },
+    "QueryCvesBySeverityResponse": {
+      "fields": {
+        "cves_by_severity": 1
+      }
+    },
+    "QueryRiskScoreRequest": {
+      "fields": {
+        "cve_id": 1,
+        "repo_id": 2
+      }
+    },
+    "QueryRiskScore": {
+      "fields": {
+        "cveId": 1,
+        "repoId": 2
+      }
+    },
+    "QueryRiskScoreResponse": {
+      "fields": {
+        "risk_score": 1
+      }
+    },
+    "QueryBlastRadiusRequest": {
+      "fields": {
+        "cve_id": 1,
+        "repo_id": 2
+      }
+    },
+    "QueryBlastRadius": {
+      "fields": {
+        "cveId": 1,
+        "repoId": 2
+      }
+    },
+    "QueryBlastRadiusResponse": {
+      "fields": {
+        "blast_radius": 1
+      }
+    },
+    "QueryCvesForDependencyRequest": {
+      "fields": {
+        "dependency_id": 1
+      }
+    },
+    "QueryCvesForDependency": {
+      "fields": {
+        "dependencyId": 1
+      }
+    },
+    "QueryCvesForDependencyResponse": {
+      "fields": {
+        "cves_for_dependency": 1
+      }
+    },
+    "CVE": {
+      "fields": {
+        "id": 1,
+        "cvssScore": 2,
+        "severity": 3,
+        "publishedAt": 4,
+        "description": 5,
+        "affectedPackages": 6,
+        "exploitInWild": 7,
+        "nvdUrl": 8
+      }
+    },
+    "RiskScore": {
+      "fields": {
+        "cveId": 1,
+        "repoId": 2,
+        "score": 3,
+        "reasoning": 4,
+        "affectedComponentCount": 5,
+        "transitiveImpact": 6
+      }
+    },
+    "BlastRadius": {
+      "fields": {
+        "cveId": 1,
+        "repoId": 2,
+        "servicesAffected": 3,
+        "transitiveDepth": 4,
+        "estimatedUsers": 5,
+        "criticalPath": 6
+      }
+    },
+    "DependencyRiskSummary": {
+      "fields": {
+        "dependencyId": 1,
+        "maxCvssScore": 2,
+        "criticalCount": 3,
+        "highCount": 4,
+        "totalCount": 5
+      }
+    },
+    "LookupDependencyByIdRequestKey": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "LookupDependencyByIdRequest": {
+      "fields": {
+        "keys": 1
+      }
+    },
+    "LookupDependencyByIdResponse": {
+      "fields": {
+        "result": 1
+      }
+    },
+    "Dependency": {
+      "fields": {
+        "id": 1,
+        "risks": 2,
+        "riskSummary": 3
+      }
+    }
+  },
+  "enums": {
+    "Severity": {
+      "fields": {
+        "CRITICAL": 1,
+        "HIGH": 2,
+        "MEDIUM": 3,
+        "LOW": 4,
+        "INFORMATIONAL": 5
+      }
+    }
+  }
+}

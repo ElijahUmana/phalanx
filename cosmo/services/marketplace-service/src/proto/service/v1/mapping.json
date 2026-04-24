@@ -1,0 +1,250 @@
+{
+  "version": 1,
+  "service": "ServiceV1",
+  "operationMappings": [
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "remediationOptions",
+      "mapped": "QueryRemediationOptions",
+      "request": "QueryRemediationOptionsRequest",
+      "response": "QueryRemediationOptionsResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "patchProviders",
+      "mapped": "QueryPatchProviders",
+      "request": "QueryPatchProvidersRequest",
+      "response": "QueryPatchProvidersResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "x402Listings",
+      "mapped": "QueryX402Listings",
+      "request": "QueryX402ListingsRequest",
+      "response": "QueryX402ListingsResponse"
+    },
+    {
+      "type": "OPERATION_TYPE_QUERY",
+      "original": "recommendedStrategy",
+      "mapped": "QueryRecommendedStrategy",
+      "request": "QueryRecommendedStrategyRequest",
+      "response": "QueryRecommendedStrategyResponse"
+    }
+  ],
+  "entityMappings": [
+    {
+      "typeName": "CVE",
+      "kind": "entity",
+      "key": "id",
+      "rpc": "LookupCVEById",
+      "request": "LookupCVEByIdRequest",
+      "response": "LookupCVEByIdResponse",
+      "requiredFieldMappings": []
+    }
+  ],
+  "typeFieldMappings": [
+    {
+      "type": "Query",
+      "fieldMappings": [
+        {
+          "original": "remediationOptions",
+          "mapped": "remediation_options",
+          "argumentMappings": [
+            {
+              "original": "cveId",
+              "mapped": "cve_id"
+            }
+          ]
+        },
+        {
+          "original": "patchProviders",
+          "mapped": "patch_providers",
+          "argumentMappings": [
+            {
+              "original": "packageName",
+              "mapped": "package_name"
+            }
+          ]
+        },
+        {
+          "original": "x402Listings",
+          "mapped": "x_402_listings",
+          "argumentMappings": [
+            {
+              "original": "forCveId",
+              "mapped": "for_cve_id"
+            }
+          ]
+        },
+        {
+          "original": "recommendedStrategy",
+          "mapped": "recommended_strategy",
+          "argumentMappings": [
+            {
+              "original": "cveId",
+              "mapped": "cve_id"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "RemediationOption",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "cveId",
+          "mapped": "cve_id",
+          "argumentMappings": []
+        },
+        {
+          "original": "strategy",
+          "mapped": "strategy",
+          "argumentMappings": []
+        },
+        {
+          "original": "targetVersion",
+          "mapped": "target_version",
+          "argumentMappings": []
+        },
+        {
+          "original": "targetImage",
+          "mapped": "target_image",
+          "argumentMappings": []
+        },
+        {
+          "original": "confidence",
+          "mapped": "confidence",
+          "argumentMappings": []
+        },
+        {
+          "original": "provider",
+          "mapped": "provider",
+          "argumentMappings": []
+        },
+        {
+          "original": "costUsd",
+          "mapped": "cost_usd",
+          "argumentMappings": []
+        },
+        {
+          "original": "description",
+          "mapped": "description",
+          "argumentMappings": []
+        },
+        {
+          "original": "x402Listing",
+          "mapped": "x_402_listing",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "CVE",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "remediationOptions",
+          "mapped": "remediation_options",
+          "argumentMappings": []
+        },
+        {
+          "original": "recommendedRemediation",
+          "mapped": "recommended_remediation",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "PatchProvider",
+      "fieldMappings": [
+        {
+          "original": "name",
+          "mapped": "name",
+          "argumentMappings": []
+        },
+        {
+          "original": "url",
+          "mapped": "url",
+          "argumentMappings": []
+        },
+        {
+          "original": "verified",
+          "mapped": "verified",
+          "argumentMappings": []
+        },
+        {
+          "original": "sbomSigned",
+          "mapped": "sbom_signed",
+          "argumentMappings": []
+        }
+      ]
+    },
+    {
+      "type": "X402Listing",
+      "fieldMappings": [
+        {
+          "original": "id",
+          "mapped": "id",
+          "argumentMappings": []
+        },
+        {
+          "original": "providerUrl",
+          "mapped": "provider_url",
+          "argumentMappings": []
+        },
+        {
+          "original": "priceUsd",
+          "mapped": "price_usd",
+          "argumentMappings": []
+        },
+        {
+          "original": "description",
+          "mapped": "description",
+          "argumentMappings": []
+        },
+        {
+          "original": "acceptedNetworks",
+          "mapped": "accepted_networks",
+          "argumentMappings": []
+        }
+      ]
+    }
+  ],
+  "enumMappings": [
+    {
+      "type": "RemediationStrategy",
+      "values": [
+        {
+          "original": "UPGRADE",
+          "mapped": "REMEDIATION_STRATEGY_UPGRADE"
+        },
+        {
+          "original": "PIN",
+          "mapped": "REMEDIATION_STRATEGY_PIN"
+        },
+        {
+          "original": "CHAINGUARD_SWAP",
+          "mapped": "REMEDIATION_STRATEGY_CHAINGUARD_SWAP"
+        },
+        {
+          "original": "VENDOR_PATCH",
+          "mapped": "REMEDIATION_STRATEGY_VENDOR_PATCH"
+        },
+        {
+          "original": "ROLLBACK",
+          "mapped": "REMEDIATION_STRATEGY_ROLLBACK"
+        }
+      ]
+    }
+  ],
+  "resolveMappings": []
+}

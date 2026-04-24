@@ -1,0 +1,131 @@
+{
+  "version": "1.0.0",
+  "messages": {
+    "LookupSBOMByIdRequestKey": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "LookupSBOMByIdRequest": {
+      "fields": {
+        "keys": 1
+      }
+    },
+    "LookupSBOMByIdResponse": {
+      "fields": {
+        "result": 1
+      }
+    },
+    "LookupDependencyByIdRequestKey": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "LookupDependencyByIdRequest": {
+      "fields": {
+        "keys": 1
+      }
+    },
+    "LookupDependencyByIdResponse": {
+      "fields": {
+        "result": 1
+      }
+    },
+    "Query": {
+      "fields": {
+        "sbom": 1,
+        "dependencyTree": 2,
+        "vulnerableDependencies": 3,
+        "dependency": 4
+      }
+    },
+    "QuerySbomRequest": {
+      "fields": {
+        "repo_id": 1
+      }
+    },
+    "QuerySbom": {
+      "fields": {
+        "repoId": 1
+      }
+    },
+    "QuerySbomResponse": {
+      "fields": {
+        "sbom": 1
+      }
+    },
+    "QueryDependencyTreeRequest": {
+      "fields": {
+        "repo_id": 1,
+        "depth": 2
+      }
+    },
+    "QueryDependencyTree": {
+      "fields": {
+        "repoId": 1,
+        "depth": 2
+      }
+    },
+    "QueryDependencyTreeResponse": {
+      "fields": {
+        "dependency_tree": 1
+      }
+    },
+    "QueryVulnerableDependenciesRequest": {
+      "fields": {
+        "cve_id": 1
+      }
+    },
+    "QueryVulnerableDependencies": {
+      "fields": {
+        "cveId": 1
+      }
+    },
+    "QueryVulnerableDependenciesResponse": {
+      "fields": {
+        "vulnerable_dependencies": 1
+      }
+    },
+    "QueryDependencyRequest": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "QueryDependency": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "QueryDependencyResponse": {
+      "fields": {
+        "dependency": 1
+      }
+    },
+    "SBOM": {
+      "fields": {
+        "id": 1,
+        "repoId": 2,
+        "generatedAt": 3,
+        "signedBy": 4,
+        "sigstoreBundleUrl": 5,
+        "slsaLevel": 6,
+        "componentCount": 7,
+        "components": 8
+      }
+    },
+    "Dependency": {
+      "fields": {
+        "id": 1,
+        "name": 2,
+        "version": 3,
+        "ecosystem": 4,
+        "transitive": 5,
+        "depth": 6,
+        "license": 7,
+        "parentId": 8,
+        "sha256": 9
+      }
+    }
+  },
+  "enums": {}
+}

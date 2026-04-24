@@ -1,0 +1,24 @@
+query AnalystImpactQuery($repoId: ID!, $cveId: ID!) {
+    dependencyTree(repoId: $repoId) {
+        id
+        name
+        version
+        ecosystem
+        transitive
+        depth
+        risks {
+            id
+            cvssScore
+            severity
+            description
+            exploitInWild
+        }
+    }
+    blastRadius(cveId: $cveId, repoId: $repoId) {
+        cveId
+        servicesAffected
+        transitiveDepth
+        estimatedUsers
+        criticalPath
+    }
+}

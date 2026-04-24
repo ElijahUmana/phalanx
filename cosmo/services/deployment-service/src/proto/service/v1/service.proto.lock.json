@@ -1,0 +1,141 @@
+{
+  "version": "1.0.0",
+  "messages": {
+    "LookupDeploymentByIdRequestKey": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "LookupDeploymentByIdRequest": {
+      "fields": {
+        "keys": 1
+      }
+    },
+    "LookupDeploymentByIdResponse": {
+      "fields": {
+        "result": 1
+      }
+    },
+    "Query": {
+      "fields": {
+        "deployments": 1,
+        "deployment": 2,
+        "activeVersion": 3
+      }
+    },
+    "QueryDeploymentsRequest": {
+      "fields": {
+        "repo_id": 1
+      }
+    },
+    "QueryDeployments": {
+      "fields": {
+        "repoId": 1
+      }
+    },
+    "QueryDeploymentsResponse": {
+      "fields": {
+        "deployments": 1
+      }
+    },
+    "QueryDeploymentRequest": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "QueryDeployment": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "QueryDeploymentResponse": {
+      "fields": {
+        "deployment": 1
+      }
+    },
+    "QueryActiveVersionRequest": {
+      "fields": {
+        "service": 1,
+        "environment": 2
+      }
+    },
+    "QueryActiveVersion": {
+      "fields": {
+        "service": 1,
+        "environment": 2
+      }
+    },
+    "QueryActiveVersionResponse": {
+      "fields": {
+        "active_version": 1
+      }
+    },
+    "Mutation": {
+      "fields": {
+        "stageDeployment": 1,
+        "rollout": 2
+      }
+    },
+    "MutationStageDeploymentRequest": {
+      "fields": {
+        "input": 1
+      }
+    },
+    "MutationStageDeployment": {
+      "fields": {
+        "input": 1
+      }
+    },
+    "MutationStageDeploymentResponse": {
+      "fields": {
+        "stage_deployment": 1
+      }
+    },
+    "MutationRolloutRequest": {
+      "fields": {
+        "deployment_id": 1
+      }
+    },
+    "MutationRollout": {
+      "fields": {
+        "deploymentId": 1
+      }
+    },
+    "MutationRolloutResponse": {
+      "fields": {
+        "rollout": 1
+      }
+    },
+    "Deployment": {
+      "fields": {
+        "id": 1,
+        "repoId": 2,
+        "environment": 3,
+        "version": 4,
+        "deployedAt": 5,
+        "deployedBy": 6,
+        "affectedServices": 7,
+        "status": 8,
+        "sbomId": 9,
+        "hypothesisId": 10
+      }
+    },
+    "StageDeploymentInput": {
+      "fields": {
+        "repoId": 1,
+        "version": 2,
+        "hypothesisId": 3,
+        "affectedServices": 4
+      }
+    },
+    "DeploymentResult": {
+      "fields": {
+        "deploymentId": 1,
+        "success": 2,
+        "message": 3,
+        "approvalRequired": 4
+      }
+    }
+  },
+  "enums": {}
+}

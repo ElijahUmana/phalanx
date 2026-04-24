@@ -57,3 +57,9 @@ yarn-error.log*
 
 # local scratch / temp clone for seeding
 /tmp-seed
+
+# Cosmo local dev artifacts — services have their own node_modules; router
+# binary is downloaded via `wgc router download-binary` and not repo material.
+cosmo/**/node_modules/
+cosmo/router/bin/router
+cosmo/router/bin/LICENSE

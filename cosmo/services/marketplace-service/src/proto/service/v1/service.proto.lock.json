@@ -1,0 +1,137 @@
+{
+  "version": "1.0.0",
+  "messages": {
+    "Query": {
+      "fields": {
+        "remediationOptions": 1,
+        "patchProviders": 2,
+        "x402Listings": 3,
+        "recommendedStrategy": 4
+      }
+    },
+    "QueryRemediationOptionsRequest": {
+      "fields": {
+        "cve_id": 1
+      }
+    },
+    "QueryRemediationOptions": {
+      "fields": {
+        "cveId": 1
+      }
+    },
+    "QueryRemediationOptionsResponse": {
+      "fields": {
+        "remediation_options": 1
+      }
+    },
+    "QueryPatchProvidersRequest": {
+      "fields": {
+        "package_name": 1
+      }
+    },
+    "QueryPatchProviders": {
+      "fields": {
+        "packageName": 1
+      }
+    },
+    "QueryPatchProvidersResponse": {
+      "fields": {
+        "patch_providers": 1
+      }
+    },
+    "QueryX402ListingsRequest": {
+      "fields": {
+        "for_cve_id": 1
+      }
+    },
+    "QueryX402Listings": {
+      "fields": {
+        "forCveId": 1
+      }
+    },
+    "QueryX402ListingsResponse": {
+      "fields": {
+        "x_402_listings": 1
+      }
+    },
+    "QueryRecommendedStrategyRequest": {
+      "fields": {
+        "cve_id": 1
+      }
+    },
+    "QueryRecommendedStrategy": {
+      "fields": {
+        "cveId": 1
+      }
+    },
+    "QueryRecommendedStrategyResponse": {
+      "fields": {
+        "recommended_strategy": 1
+      }
+    },
+    "RemediationOption": {
+      "fields": {
+        "id": 1,
+        "cveId": 2,
+        "strategy": 3,
+        "targetVersion": 4,
+        "targetImage": 5,
+        "confidence": 6,
+        "provider": 7,
+        "costUsd": 8,
+        "description": 9,
+        "x402Listing": 10
+      }
+    },
+    "PatchProvider": {
+      "fields": {
+        "name": 1,
+        "url": 2,
+        "verified": 3,
+        "sbomSigned": 4
+      }
+    },
+    "X402Listing": {
+      "fields": {
+        "id": 1,
+        "providerUrl": 2,
+        "priceUsd": 3,
+        "description": 4,
+        "acceptedNetworks": 5
+      }
+    },
+    "LookupCVEByIdRequestKey": {
+      "fields": {
+        "id": 1
+      }
+    },
+    "LookupCVEByIdRequest": {
+      "fields": {
+        "keys": 1
+      }
+    },
+    "LookupCVEByIdResponse": {
+      "fields": {
+        "result": 1
+      }
+    },
+    "CVE": {
+      "fields": {
+        "id": 1,
+        "remediationOptions": 2,
+        "recommendedRemediation": 3
+      }
+    }
+  },
+  "enums": {
+    "RemediationStrategy": {
+      "fields": {
+        "UPGRADE": 1,
+        "PIN": 2,
+        "CHAINGUARD_SWAP": 3,
+        "VENDOR_PATCH": 4,
+        "ROLLBACK": 5
+      }
+    }
+  }
+}

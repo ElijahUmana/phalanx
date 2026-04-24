@@ -1,0 +1,37 @@
+extend schema
+    @link(url: "https://specs.apollo.dev/federation/v2.5",
+          import: ["@key", "@shareable", "@external", "@requiresScopes", "@authenticated"])
+
+"""
+SBOM subgraph — owns Software Bill of Materials and dependency tree queries.
+All fields require the read:sbom scope. Analyst agents hold this scope.
+"""
+type Query {
+    sbom(repoId: ID!): SBOM @requiresScopes(scopes: [["read:sbom"]])
+    dependencyTree(repoId: ID!, depth: Int): [Dependency!]! @requiresScopes(scopes: [["read:sbom"]])
+    vulnerableDependencies(cveId: ID!): [Dependency!]! @requiresScopes(scopes: [["read:sbom"]])
+    dependency(id: ID!): Dependency @requiresScopes(scopes: [["read:sbom"]])
+}
+
+type SBOM @key(fields: "id") {
+    id: ID!
+    repoId: ID!
+    generatedAt: String!
+    signedBy: String
+    sigstoreBundleUrl: String
+    slsaLevel: Int
+    componentCount: Int!
+    components: [Dependency!]!
+}
+
+type Dependency @key(fields: "id") {
+    id: ID!
+    name: String!
+    version: String!
+    ecosystem: String!
+    transitive: Boolean!
+    depth: Int!
+    license: String
+    parentId: ID
+    sha256: String
+}

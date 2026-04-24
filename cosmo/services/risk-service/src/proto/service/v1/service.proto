@@ -1,0 +1,180 @@
+syntax = "proto3";
+package service.v1;
+
+import "google/protobuf/wrappers.proto";
+
+// Service definition for ServiceV1
+service ServiceV1 {
+  // Lookup CVE entity by id
+  rpc LookupCVEById(LookupCVEByIdRequest) returns (LookupCVEByIdResponse) {}
+  // Lookup Dependency entity by id
+  rpc LookupDependencyById(LookupDependencyByIdRequest) returns (LookupDependencyByIdResponse) {}
+  rpc QueryBlastRadius(QueryBlastRadiusRequest) returns (QueryBlastRadiusResponse) {}
+  rpc QueryCve(QueryCveRequest) returns (QueryCveResponse) {}
+  rpc QueryCvesBySeverity(QueryCvesBySeverityRequest) returns (QueryCvesBySeverityResponse) {}
+  rpc QueryCvesForDependency(QueryCvesForDependencyRequest) returns (QueryCvesForDependencyResponse) {}
+  rpc QueryRiskScore(QueryRiskScoreRequest) returns (QueryRiskScoreResponse) {}
+}
+
+// Key message for CVE entity lookup
+message LookupCVEByIdRequestKey {
+  // Key field for CVE entity lookup.
+  string id = 1;
+}
+
+// Request message for CVE entity lookup.
+message LookupCVEByIdRequest {
+  /*
+   * List of keys to look up CVE entities.
+   * Order matters - each key maps to one entity in LookupCVEByIdResponse.
+   */
+  repeated LookupCVEByIdRequestKey keys = 1;
+}
+
+// Response message for CVE entity lookup.
+message LookupCVEByIdResponse {
+  /*
+   * List of CVE entities in the same order as the keys in LookupCVEByIdRequest.
+   * Always return the same number of entities as keys. Use null for entities that cannot be found.
+   * 
+   * Example:
+   *   LookupUserByIdRequest:
+   *     keys:
+   *       - id: 1
+   *       - id: 2
+   *   LookupUserByIdResponse:
+   *     result:
+   *       - id: 1 # User with id 1 found
+   *       - null  # User with id 2 not found
+   */
+  repeated CVE result = 1;
+}
+
+// Key message for Dependency entity lookup
+message LookupDependencyByIdRequestKey {
+  // Key field for Dependency entity lookup.
+  string id = 1;
+}
+
+// Request message for Dependency entity lookup.
+message LookupDependencyByIdRequest {
+  /*
+   * List of keys to look up Dependency entities.
+   * Order matters - each key maps to one entity in LookupDependencyByIdResponse.
+   */
+  repeated LookupDependencyByIdRequestKey keys = 1;
+}
+
+// Response message for Dependency entity lookup.
+message LookupDependencyByIdResponse {
+  /*
+   * List of Dependency entities in the same order as the keys in LookupDependencyByIdRequest.
+   * Always return the same number of entities as keys. Use null for entities that cannot be found.
+   * 
+   * Example:
+   *   LookupUserByIdRequest:
+   *     keys:
+   *       - id: 1
+   *       - id: 2
+   *   LookupUserByIdResponse:
+   *     result:
+   *       - id: 1 # User with id 1 found
+   *       - null  # User with id 2 not found
+   */
+  repeated Dependency result = 1;
+}
+
+// Request message for cve operation.
+message QueryCveRequest {
+  string id = 1;
+}
+// Response message for cve operation.
+message QueryCveResponse {
+  CVE cve = 1;
+}
+// Request message for cvesBySeverity operation.
+message QueryCvesBySeverityRequest {
+  double min_score = 1;
+}
+// Response message for cvesBySeverity operation.
+message QueryCvesBySeverityResponse {
+  repeated CVE cves_by_severity = 1;
+}
+// Request message for riskScore operation.
+message QueryRiskScoreRequest {
+  string cve_id = 1;
+  string repo_id = 2;
+}
+// Response message for riskScore operation.
+message QueryRiskScoreResponse {
+  RiskScore risk_score = 1;
+}
+// Request message for blastRadius operation.
+message QueryBlastRadiusRequest {
+  string cve_id = 1;
+  string repo_id = 2;
+}
+// Response message for blastRadius operation.
+message QueryBlastRadiusResponse {
+  BlastRadius blast_radius = 1;
+}
+// Request message for cvesForDependency operation.
+message QueryCvesForDependencyRequest {
+  string dependency_id = 1;
+}
+// Response message for cvesForDependency operation.
+message QueryCvesForDependencyResponse {
+  repeated CVE cves_for_dependency = 1;
+}
+
+message CVE {
+  string id = 1;
+  double cvss_score = 2;
+  Severity severity = 3;
+  string published_at = 4;
+  string description = 5;
+  repeated string affected_packages = 6;
+  bool exploit_in_wild = 7;
+  google.protobuf.StringValue nvd_url = 8;
+}
+
+message Dependency {
+  string id = 1;
+  repeated CVE risks = 2;
+  DependencyRiskSummary risk_summary = 3;
+}
+
+message RiskScore {
+  string cve_id = 1;
+  string repo_id = 2;
+  double score = 3;
+  string reasoning = 4;
+  int32 affected_component_count = 5;
+  int32 transitive_impact = 6;
+}
+
+message BlastRadius {
+  string cve_id = 1;
+  string repo_id = 2;
+  int32 services_affected = 3;
+  int32 transitive_depth = 4;
+  int32 estimated_users = 5;
+  repeated string critical_path = 6;
+}
+
+message DependencyRiskSummary {
+  string dependency_id = 1;
+  double max_cvss_score = 2;
+  int32 critical_count = 3;
+  int32 high_count = 4;
+  int32 total_count = 5;
+}
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  SEVERITY_CRITICAL = 1;
+  SEVERITY_HIGH = 2;
+  SEVERITY_MEDIUM = 3;
+  SEVERITY_LOW = 4;
+  SEVERITY_INFORMATIONAL = 5;
+}
