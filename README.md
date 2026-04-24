@@ -1,14 +1,35 @@
 # Phalanx
 
-**Parallel-fork CVE response fabric.** An autonomous agent fleet that detects critical CVEs from the open web, forks your dependency state into N parallel remediation hypotheses, validates each in an isolated live backend, cancels false positives mid-flight, and ships the winner with a cryptographic evidence chain.
+**Your software depends on thousands of open-source packages. When one of them is compromised, Phalanx fixes it — autonomously, in minutes, not months.**
+
+Every modern application is built on open-source libraries. A single vulnerability in any one of them — known as a CVE (Common Vulnerabilities and Exposures) — can expose your entire system to attack. Today, when a critical vulnerability is discovered, security teams spend weeks manually figuring out which fix works, testing it, and deploying it. During that window, attackers are already exploiting it.
+
+Phalanx eliminates that window. It **detects** the vulnerability from the open web, **tests multiple fixes simultaneously** by forking your entire dependency database into parallel copies, **cancels the dead ends mid-flight** when it identifies false positives, and **ships the winning fix** with cryptographic proof that every step was audited and every artifact is verified.
 
 **[Live Dashboard](https://phalanx-sandy.vercel.app/dashboard)** | **[Install as Skill](https://github.com/ElijahUmana/phalanx/tree/main/skills/phalanx)** | **[Demo Target Repo](https://github.com/ElijahUmana/phalanx-demo-target)**
 
 ---
 
-## The Problem
+## Why This Matters
 
-Supply chain attacks cost **$60B annually** (Cybersecurity Ventures 2025). Mean time to remediate a critical CVE: **60 days** (Sonatype 2025). Five major OSS supply chain attacks hit in **12 days** in March 2026. Snyk Agent Fix does single-hypothesis auto-patch. Nobody forks state N ways, validates in parallel, cancels mid-flight, or ships with cryptographic provenance.
+- **$60B/year** lost to software supply chain attacks (Cybersecurity Ventures 2025)
+- **60 days** average time to patch a critical vulnerability (Sonatype 2025)
+- **5 major attacks in 12 days** in March 2026 alone (Axios, Trivy, Checkmarx, LiteLLM, Telnyx)
+- **88% of enterprises** reported at least one AI agent security incident in 2026
+
+The current best tools — Snyk, Dependabot, Wiz — detect the problem and file a ticket. Some can auto-generate a single fix. None of them test multiple remediation strategies in parallel, cancel wrong paths in real time, or produce a cryptographic evidence chain for auditors.
+
+## How Phalanx Is Different
+
+| | Traditional tools (Snyk, Dependabot) | Phalanx |
+|---|---|---|
+| **Detection** | API feeds only (NVD, GHSA) | API feeds + real-time web scraping of vendor advisories, PoC exploits, researcher posts via TinyFish |
+| **Fix strategy** | Single hypothesis — "upgrade to latest" | N hypotheses tested in parallel — upgrade, pin, swap to zero-CVE image, apply vendor patch |
+| **Validation** | Static analysis or no validation | Each hypothesis runs in its own live backend (Ghost fork + InsForge) |
+| **False positives** | Manual triage | Detected and cancelled mid-pipeline in <1ms via Redis Pub/Sub |
+| **Governance** | Ticket filed, human takes over | Every action audited in Guild's immutable log, per-operation scope enforcement via WunderGraph |
+| **Evidence** | PDF report | Cryptographically signed SBOM (Chainguard Sigstore), SLSA L3 attestation, x402 payment receipt, published to cited.md |
+| **Time to fix** | 60 days | Under 2 minutes |
 
 ## Architecture
 
