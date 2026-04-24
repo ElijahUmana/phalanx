@@ -9,9 +9,9 @@
 //   - We use BrowserProfile.STEALTH to survive bot walls on vendor sites that
 //     occasionally block the lightweight profile.
 
-import { getTinyFish } from './client.js';
-import { emitEvent } from '../events/emitter.js';
-import type { VendorPortalResult } from './types.js';
+import { getTinyFish } from './client';
+import { emitEvent } from '../events/emitter';
+import type { VendorPortalResult } from './types';
 
 // Inlined from @tiny-fish/sdk to avoid ESM static-link issues under tsx .mts.
 // These values are the SDK's string-literal enum values at their source.

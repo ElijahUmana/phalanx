@@ -8,6 +8,8 @@ export {
   fundFromFaucet,
   ensureFunded,
   getX402Signer,
+  getWalletCustody,
+  resolveWallet,
   publicClient,
   PHALANX_ACCOUNT_NAME,
   BASE_SEPOLIA_CHAIN_ID,

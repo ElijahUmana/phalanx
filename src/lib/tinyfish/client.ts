@@ -2,7 +2,7 @@
 // its own connection pooling and retries so a singleton is sufficient.
 
 import { TinyFish } from '@tiny-fish/sdk';
-import { env } from '../env.js';
+import { env } from '../env';
 
 let singleton: TinyFish | null = null;
 

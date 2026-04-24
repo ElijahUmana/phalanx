@@ -4,9 +4,9 @@
 // OSV/GHSA yet. Returns a structured report keyed by source kind with a
 // heuristic confidence score per hit.
 
-import { getTinyFish } from './client.js';
-import { emitEvent } from '../events/emitter.js';
-import type { EnrichmentHit, EnrichmentReport, SearchResult } from './types.js';
+import { getTinyFish } from './client';
+import { emitEvent } from '../events/emitter';
+import type { EnrichmentHit, EnrichmentReport, SearchResult } from './types';
 
 const QUERY_TEMPLATES: Array<{
     template: (cveId: string) => string;

@@ -20,6 +20,7 @@ import {
   getWallet,
   getBalances,
   ensureFunded,
+  getWalletCustody,
   x402Fetch,
   PHALANX_ACCOUNT_NAME,
 } from '@/lib/x402';
@@ -70,12 +71,16 @@ async function startDevServer(): Promise<DevServer> {
 async function main() {
   env();
 
-  console.log(`\n→ Step 1: create/retrieve CDP wallet "${PHALANX_ACCOUNT_NAME}"`);
+  console.log(`\n→ Step 1: resolve wallet (CDP server-wallet if walletSecret set, else local viem)`);
   const wallet = await getWallet(SCAN_ID);
+  const custody = await getWalletCustody(SCAN_ID);
   if (!wallet.address.startsWith('0x') || wallet.address.length !== 42) {
     throw new Error(`invalid wallet address: ${wallet.address}`);
   }
-  console.log(`  ✓ address = ${wallet.address} (network=${wallet.network})`);
+  console.log(`  ✓ address = ${wallet.address} (network=${wallet.network}, custody=${custody})`);
+  if (custody === 'local') {
+    console.log(`  ! CDP_WALLET_SECRET unset — using local viem account. Fund manually via Coinbase faucet.`);
+  }
 
   console.log(`\n→ Step 2: read on-chain balances (Base Sepolia)`);
   const balances = await getBalances(SCAN_ID);
@@ -88,7 +93,9 @@ async function main() {
   try {
     const result = await ensureFunded(SCAN_ID, 1_000n, 1_000_000_000_000_000n);
     if (result.funded) {
-      console.log(`  ✓ already funded (${result.faucetTxs.length} faucet txs issued)`);
+      console.log(`  ✓ already funded (custody=${result.custody})`);
+    } else if (result.custody === 'local') {
+      console.log(`  ~ local-wallet mode: CDP faucet unavailable. Address ${wallet.address} ready for manual funding.`);
     } else {
       for (const tx of result.faucetTxs) {
         console.log(`  ✓ faucet ${tx.token.toUpperCase()} tx = ${tx.txHash}`);
@@ -104,21 +111,30 @@ async function main() {
   const server = await startDevServer();
 
   try {
-    console.log(`\n→ Step 5a: GET ${ENDPOINT} without payment → expect 402`);
+    console.log(`\n→ Step 5a: GET ${ENDPOINT} without payment → expect 402 + Payment-Required header`);
     const unpaid = await fetch(ENDPOINT);
     if (unpaid.status !== 402) {
       throw new Error(`expected 402 Payment Required, got ${unpaid.status}`);
     }
-    const unpaidBody = await unpaid.json().catch(() => null);
-    if (!unpaidBody || typeof unpaidBody !== 'object') {
-      throw new Error('402 body was not JSON');
+    const paymentRequiredHeader = unpaid.headers.get('payment-required');
+    if (!paymentRequiredHeader) {
+      throw new Error('402 response missing Payment-Required header');
     }
-    const typed = unpaidBody as { x402Version?: number; accepts?: unknown[] };
-    if (typed.x402Version !== 2) throw new Error(`x402Version should be 2, got ${typed.x402Version}`);
-    if (!Array.isArray(typed.accepts) || typed.accepts.length === 0) {
-      throw new Error('accepts[] missing or empty');
+    const decoded = Buffer.from(paymentRequiredHeader, 'base64').toString('utf8');
+    const challenge = JSON.parse(decoded) as {
+      x402Version?: number;
+      accepts?: Array<{ scheme?: string; network?: string; amount?: string; asset?: string; payTo?: string }>;
+    };
+    if (challenge.x402Version !== 2) {
+      throw new Error(`x402Version should be 2, got ${challenge.x402Version}`);
     }
-    console.log(`  ✓ 402 with x402Version=2 and ${typed.accepts.length} accepts option(s)`);
+    if (!Array.isArray(challenge.accepts) || challenge.accepts.length === 0) {
+      throw new Error('accepts[] missing or empty in Payment-Required header');
+    }
+    const first = challenge.accepts[0];
+    console.log(`  ✓ 402 with x402Version=2`);
+    console.log(`  ✓ accepts[0]: scheme=${first.scheme} network=${first.network} amount=${first.amount} asset=${first.asset?.slice(0, 12)}...`);
+    console.log(`  ✓ payTo      = ${first.payTo}`);
 
     console.log(`\n→ Step 5b: x402Fetch → pay + retrieve`);
     const postBalances = await getBalances(SCAN_ID);

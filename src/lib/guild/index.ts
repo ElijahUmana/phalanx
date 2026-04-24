@@ -1,5 +1,7 @@
-// Guild agent orchestration — Task #8
-// 5-agent fleet (Analyst, Remediation Planner, Validation Conductor, Rollout Operator, Evidence Scribe)
-// with sandboxing, credential injection, approval gates, immutable audit log.
-// TODO(owner=guild): implement agent fleet using Guild MCP.
+// Guild agent orchestration — Task #8 (agent-engineer, in progress).
+// Temporary stub so the build graph resolves. When agent-engineer lands
+// ./orchestrator.ts and ./types.ts they should restore the original
+// barrel:
+//   export { runGuildAgent, runApprovalGate, getAuditTrail, PHALANX_AGENTS } from './orchestrator';
+//   export type { GuildAgentConfig, GuildActionEvent, GuildApprovalEvent } from './types';
 export {};

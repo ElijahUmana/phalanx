@@ -27,20 +27,20 @@ export {
     searchAdvisories,
     enrichAdvisoriesWithContent,
     findAndFetchAdvisories,
-} from './scanner.js';
+} from './scanner';
 
 export {
     inspectVendorPortal,
     type SupportedRegistry,
-} from './vendor-portal.js';
+} from './vendor-portal';
 
 export {
     createPullRequest,
     createPullRequestViaAgent,
     createPullRequestViaApi,
-} from './pr-creator.js';
+} from './pr-creator';
 
-export { enrichCve } from './enrichment.js';
+export { enrichCve } from './enrichment';
 
 export type {
     AdvisorySource,
@@ -51,6 +51,6 @@ export type {
     PrStrategy,
     PrCreationResult,
     PrCreationInput,
-} from './types.js';
+} from './types';
 
-export { getTinyFish } from './client.js';
+export { getTinyFish } from './client';

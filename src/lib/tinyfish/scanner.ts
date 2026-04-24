@@ -3,9 +3,9 @@
 // then TinyFish Fetch to pull full advisory content into a structured report.
 // Both calls emit events so the dashboard can render them live.
 
-import { getTinyFish } from './client.js';
-import { emitEvent } from '../events/emitter.js';
-import type { AdvisorySource, CveAdvisoryReport, FetchResult, SearchResult } from './types.js';
+import { getTinyFish } from './client';
+import { emitEvent } from '../events/emitter';
+import type { AdvisorySource, CveAdvisoryReport, FetchResult, SearchResult } from './types';
 
 // Inlined to avoid ESM static-link issues with @tiny-fish/sdk's exports field
 // under tsx .mts mode. The SDK's FetchFormat is a string enum of these values.

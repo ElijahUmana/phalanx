@@ -11,10 +11,10 @@
 // path is the fallback when the agent run fails or the caller explicitly
 // wants a reliable backend path.
 
-import { getTinyFish } from './client.js';
-import { emitEvent } from '../events/emitter.js';
-import { env } from '../env.js';
-import type { PrCreationInput, PrCreationResult } from './types.js';
+import { getTinyFish } from './client';
+import { emitEvent } from '../events/emitter';
+import { env } from '../env';
+import type { PrCreationInput, PrCreationResult } from './types';
 
 // Inlined from @tiny-fish/sdk to avoid ESM static-link issues under tsx .mts.
 const BROWSER_PROFILE_STEALTH = 'stealth' as const;
