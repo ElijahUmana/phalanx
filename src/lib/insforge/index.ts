@@ -1,4 +1,10 @@
 // InsForge per-hypothesis staging backends — Task #6
-// Provisions one Postgres+auth+storage+fn backend per remediation hypothesis via MCP.
-// TODO(owner=insforge): implement provision/validate/reclaim lifecycle using @insforge/sdk.
-export {};
+// Each remediation hypothesis gets an isolated row in staging_backends with
+// a unique public URL, validated with a real SDK round-trip, cleaned up
+// after the scan completes.
+
+export * from './types';
+export * from './client';
+export { provisionBackend, getBackend, getBackendsForScan } from './provisioner';
+export { validateBackend } from './validator';
+export { cleanupBackend } from './cleanup';
