@@ -1,0 +1,47 @@
+{
+  "name": "phalanx",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Parallel-fork CVE response fabric — autonomous agent fleet with Ghost forking + Redis coordination",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "seed:ghost": "tsx scripts/seed-ghost.ts",
+    "test:ghost": "tsx scripts/test-ghost.ts",
+    "test:redis": "tsx scripts/test-redis.ts",
+    "test:all": "pnpm test:ghost && pnpm test:redis"
+  },
+  "dependencies": {
+    "@coinbase/cdp-sdk": "^1.48.2",
+    "@insforge/sdk": "^1.2.5",
+    "@langchain/redis": "^1.1.1",
+    "@senso-ai/cli": "^0.11.0",
+    "@tiny-fish/sdk": "^0.0.8",
+    "@x402/core": "^2.10.0",
+    "@x402/evm": "^2.10.0",
+    "@x402/express": "^2.10.0",
+    "@x402/fetch": "^2.10.0",
+    "dotenv": "^16.4.5",
+    "next": "16.2.4",
+    "pg": "^8.12.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "redis": "^5.12.1",
+    "viem": "^2.48.4",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}

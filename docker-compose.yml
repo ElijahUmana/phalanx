@@ -1,0 +1,16 @@
+# Local-dev compose. Redis is Redis Cloud (see REDIS_URL in .env.local) — not run locally.
+# Cosmo Router is the only local service; Task #2 owner will flesh out its config.
+services:
+  cosmo-router:
+    image: ghcr.io/wundergraph/cosmo/router:latest
+    container_name: phalanx-cosmo-router
+    ports:
+      - "3002:3002"
+    environment:
+      - LOG_LEVEL=info
+      # Router config will be mounted here by Task #2 owner:
+      # - EXECUTION_CONFIG_FILE_PATH=/etc/cosmo/execution-config.json
+      # - GRAPH_API_TOKEN=<federated-graph-token>
+    # volumes:
+    #   - ./cosmo/execution-config.json:/etc/cosmo/execution-config.json:ro
+    restart: unless-stopped
