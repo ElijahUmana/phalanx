@@ -35,6 +35,7 @@ type Step = { name: string; run: () => Promise<void> };
 const steps: Step[] = [];
 let passed = 0;
 let failed = 0;
+const SCAN_ID = `test-ghost-${Date.now()}`;
 
 function step(name: string, run: () => Promise<void>) {
   steps.push({ name, run });
@@ -49,14 +50,18 @@ async function main() {
 
   step('fork phalanx-deps', async () => {
     console.log(`  [test] creating fork "${forkName}" from "${sourceDb}" ...`);
-    fork = await createFork(sourceDb, forkName);
+    fork = await createFork(SCAN_ID, sourceDb, {
+      forkName,
+      hypothesis: 'upgrade lodash to 4.17.21',
+      cveId: 'CVE-2020-8203',
+    });
     if (!fork.id || !fork.connection) throw new Error(`malformed fork response: ${JSON.stringify(fork)}`);
     console.log(`  [test]   fork ready: id=${fork.id}`);
   });
 
   step('query lodash from fork → expect 4.17.15', async () => {
     if (!fork) throw new Error('fork missing');
-    const deps = await queryDeps(fork.connection, 'lodash');
+    const deps = await queryDeps(SCAN_ID, fork.connection, 'lodash');
     if (deps.length === 0) throw new Error('no lodash dep found in fork — seed did not replicate');
     const pinned = deps.find((d) => d.version === '4.17.15');
     if (!pinned) throw new Error(`lodash 4.17.15 not present; got versions: ${deps.map((d) => d.version).join(', ')}`);
@@ -65,7 +70,7 @@ async function main() {
 
   step('writePatchResult to fork', async () => {
     if (!fork) throw new Error('fork missing');
-    const patchId = await writePatchResult(fork.connection, {
+    const patchId = await writePatchResult(SCAN_ID, fork.connection, {
       cveId: 'CVE-2020-8203',
       hypothesis: 'upgrade lodash to 4.17.21',
       forkId: fork.id,
@@ -80,7 +85,7 @@ async function main() {
 
   step('verify patch_result exists in fork', async () => {
     if (!fork) throw new Error('fork missing');
-    await withPg(fork.connection, async (client) => {
+    await withPg(SCAN_ID, fork.connection, async (client) => {
       const result = await client.query<{ count: string }>(
         "SELECT COUNT(*)::text AS count FROM patch_results WHERE cve_id = 'CVE-2020-8203'",
       );
@@ -91,8 +96,8 @@ async function main() {
   });
 
   step('verify ORIGINAL phalanx-deps has NO patch_result (copy-on-write isolation)', async () => {
-    const originalConn = await getConnectionString(sourceDb);
-    await withPg(originalConn, async (client) => {
+    const originalConn = await getConnectionString(SCAN_ID, sourceDb);
+    await withPg(SCAN_ID, originalConn, async (client) => {
       const result = await client.query<{ count: string }>(
         "SELECT COUNT(*)::text AS count FROM patch_results WHERE cve_id = 'CVE-2020-8203' AND hypothesis = 'upgrade lodash to 4.17.21'",
       );
@@ -107,14 +112,13 @@ async function main() {
   });
 
   step('Memory Engine: findSimilarCves("prototype pollution lodash") → expect CVE-2020-8203 in top 3', async () => {
-    const results = await findSimilarCves('prototype pollution lodash object constructor', 5);
+    const results = await findSimilarCves(SCAN_ID, 'prototype pollution lodash object constructor', 5);
     if (results.length === 0) throw new Error('no CVEs returned from similarity search');
 
     const top3 = results.slice(0, 3).map((r) => r.cve.cveId);
     console.log(`  [test]   top 3: ${top3.join(', ')}`);
     if (!top3.includes('CVE-2020-8203')) {
-      // Fall back to lexical trigram search if the deterministic embedding didn't rank it top-3.
-      const lex = await lexicalSearchCves('prototype pollution lodash', 5);
+      const lex = await lexicalSearchCves(SCAN_ID, 'prototype pollution lodash', 5);
       const lexIds = lex.map((r) => r.cveId);
       console.log(`  [test]   (lexical fallback) top 5: ${lexIds.join(', ')}`);
       if (!lexIds.includes('CVE-2020-8203')) {
@@ -124,7 +128,7 @@ async function main() {
   });
 
   step('recordRemediation + findSimilarRemediations round-trip', async () => {
-    const memId = await recordRemediation({
+    const memId = await recordRemediation(SCAN_ID, {
       cveId: 'CVE-2020-8203',
       hypothesis: 'upgrade lodash to 4.17.21',
       outcome: 'success',
@@ -138,7 +142,7 @@ async function main() {
       },
     });
     if (typeof memId !== 'number' || memId <= 0) throw new Error(`recordRemediation returned invalid id: ${memId}`);
-    const similar = await findSimilarRemediations('prototype pollution lodash', 3);
+    const similar = await findSimilarRemediations(SCAN_ID, 'prototype pollution lodash', 3);
     const found = similar.find((r) => r.cveId === 'CVE-2020-8203' && r.outcome === 'success');
     if (!found) {
       throw new Error(
@@ -150,7 +154,7 @@ async function main() {
 
   step('cleanup: deleteFork', async () => {
     if (!fork) return;
-    await deleteFork(fork.name);
+    await deleteFork(SCAN_ID, fork.name);
     console.log(`  [test]   deleted fork "${fork.name}"`);
   });
 

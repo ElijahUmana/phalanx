@@ -2,6 +2,7 @@ import { execFile as execFileCb } from 'node:child_process';
 import { promisify } from 'node:util';
 import { Client as PgClient } from 'pg';
 import { env } from '@/lib/env';
+import { emitEvent } from '@/lib/events/emitter';
 import type {
   Dependency,
   GhostDatabase,
@@ -19,13 +20,16 @@ async function ghostCli(args: string[]): Promise<string> {
   return stdout;
 }
 
-export async function listDatabases(): Promise<GhostDatabase[]> {
+export async function listDatabases(_scanId: string): Promise<GhostDatabase[]> {
   const out = await ghostCli(['list', '--json']);
   const parsed = JSON.parse(out) as GhostDatabase[];
   return parsed;
 }
 
-export async function getConnectionString(dbName: string): Promise<string> {
+export async function getConnectionString(
+  _scanId: string,
+  dbName: string,
+): Promise<string> {
   const out = await ghostCli(['connect', dbName]);
   const connStr = out.trim();
   if (!connStr.startsWith('postgres')) {
@@ -34,32 +38,73 @@ export async function getConnectionString(dbName: string): Promise<string> {
   return connStr;
 }
 
+export interface CreateForkOptions {
+  forkName?: string;
+  hypothesis?: string;
+  cveId?: string;
+}
+
 export async function createFork(
+  scanId: string,
   sourceDb: string,
-  forkName?: string,
+  opts: CreateForkOptions = {},
 ): Promise<GhostFork> {
+  await emitEvent(scanId, {
+    source: 'ghost',
+    type: 'ghost.fork.started',
+    data: {
+      forkId: null,
+      hypothesis: opts.hypothesis ?? null,
+      cveId: opts.cveId ?? null,
+      parentDb: sourceDb,
+    },
+  });
+
+  const started = Date.now();
   const args = ['fork', sourceDb, '--wait', '--json'];
-  if (forkName) args.push('--name', forkName);
+  if (opts.forkName) args.push('--name', opts.forkName);
+
   const out = await ghostCli(args);
   const parsed = JSON.parse(out) as { id: string; name: string; connection: string };
   if (!parsed.id || !parsed.connection) {
     throw new Error(`Ghost fork returned malformed output: ${out}`);
   }
+
+  await emitEvent(scanId, {
+    source: 'ghost',
+    type: 'ghost.fork.complete',
+    data: {
+      forkId: parsed.id,
+      forkName: parsed.name,
+      parentDb: sourceDb,
+      hypothesis: opts.hypothesis ?? null,
+      cveId: opts.cveId ?? null,
+      durationMs: Date.now() - started,
+    },
+  });
+
   return parsed;
 }
 
-export async function deleteFork(forkNameOrId: string): Promise<void> {
+export async function deleteFork(
+  _scanId: string,
+  forkNameOrId: string,
+): Promise<void> {
   await execFile('ghost', ['delete', forkNameOrId, '--confirm'], {
     encoding: 'utf8',
   });
 }
 
-export async function listForks(prefix: string): Promise<GhostDatabase[]> {
-  const all = await listDatabases();
+export async function listForks(
+  scanId: string,
+  prefix: string,
+): Promise<GhostDatabase[]> {
+  const all = await listDatabases(scanId);
   return all.filter((db) => db.name.startsWith(prefix));
 }
 
-async function withPg<T>(
+export async function withPg<T>(
+  _scanId: string,
   connectionString: string,
   fn: (client: PgClient) => Promise<T>,
 ): Promise<T> {
@@ -73,10 +118,11 @@ async function withPg<T>(
 }
 
 export async function queryDeps(
+  scanId: string,
   connectionString: string,
   packageName: string,
 ): Promise<Dependency[]> {
-  return withPg(connectionString, async (client) => {
+  return withPg(scanId, connectionString, async (client) => {
     const result = await client.query<{
       id: number;
       package_name: string;
@@ -106,8 +152,11 @@ export async function queryDeps(
   });
 }
 
-export async function countDeps(connectionString: string): Promise<number> {
-  return withPg(connectionString, async (client) => {
+export async function countDeps(
+  scanId: string,
+  connectionString: string,
+): Promise<number> {
+  return withPg(scanId, connectionString, async (client) => {
     const result = await client.query<{ count: string }>(
       'SELECT COUNT(*)::text AS count FROM dependencies',
     );
@@ -116,10 +165,11 @@ export async function countDeps(connectionString: string): Promise<number> {
 }
 
 export async function writePatchResult(
+  scanId: string,
   connectionString: string,
   input: PatchResultInput,
 ): Promise<number> {
-  return withPg(connectionString, async (client) => {
+  return withPg(scanId, connectionString, async (client) => {
     const result = await client.query<{ id: number }>(
       `INSERT INTO patch_results (cve_id, hypothesis, fork_id, outcome, details)
        VALUES ($1, $2, $3, $4, $5)
@@ -130,8 +180,6 @@ export async function writePatchResult(
   });
 }
 
-export async function getConnectionForPhalanx(): Promise<string> {
-  return getConnectionString(env().GHOST_DB_NAME);
+export async function getConnectionForPhalanx(scanId: string): Promise<string> {
+  return getConnectionString(scanId, env().GHOST_DB_NAME);
 }
-
-export { withPg };

@@ -1,19 +1,34 @@
+import { emitEvent } from '@/lib/events/emitter';
 import { getRedis, getDedicatedSubscriber } from './client';
 import type { CancelEvent, CancelReason } from './types';
 
 export const CANCEL_CHANNEL_PATTERN = 'cancel:*';
 
-export function cancelChannel(cveId: string): string {
+export function cancelChannel(_scanId: string, cveId: string): string {
   return `cancel:${cveId}`;
 }
 
 export async function broadcastCancel(
+  scanId: string,
   cveId: string,
   reason: CancelReason,
 ): Promise<number> {
-  const client = await getRedis();
+  const client = await getRedis(scanId);
   const event: CancelEvent = { cveId, reason, broadcastAt: new Date().toISOString() };
-  return client.publish(cancelChannel(cveId), JSON.stringify(event));
+  const subscribers = await client.publish(cancelChannel(scanId, cveId), JSON.stringify(event));
+
+  await emitEvent(scanId, {
+    source: 'redis',
+    type: 'redis.pubsub.cancel',
+    data: {
+      cveId,
+      reason,
+      subscribers,
+      broadcastAt: event.broadcastAt,
+    },
+  });
+
+  return subscribers;
 }
 
 export type CancelHandler = (event: CancelEvent) => void | Promise<void>;
@@ -23,9 +38,10 @@ export interface CancelSubscription {
 }
 
 export async function subscribeCancellations(
+  scanId: string,
   handler: CancelHandler,
 ): Promise<CancelSubscription> {
-  const sub = await getDedicatedSubscriber();
+  const sub = await getDedicatedSubscriber(scanId);
   await sub.pSubscribe(CANCEL_CHANNEL_PATTERN, async (message, _channel) => {
     let parsed: CancelEvent;
     try {

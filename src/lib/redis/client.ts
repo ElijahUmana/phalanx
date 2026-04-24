@@ -18,7 +18,7 @@ async function connect(label: string): Promise<RedisClientType> {
   return client;
 }
 
-export async function getRedis(): Promise<RedisClientType> {
+export async function getRedis(_scanId: string): Promise<RedisClientType> {
   if (primaryClient) return primaryClient;
   if (primaryClientReady) return primaryClientReady;
   primaryClientReady = connect('primary').then((c) => {
@@ -28,11 +28,13 @@ export async function getRedis(): Promise<RedisClientType> {
   return primaryClientReady;
 }
 
-export async function getDedicatedSubscriber(): Promise<RedisClientType> {
+export async function getDedicatedSubscriber(
+  _scanId: string,
+): Promise<RedisClientType> {
   return connect('subscriber');
 }
 
-export async function closeRedis(): Promise<void> {
+export async function closeRedis(_scanId: string): Promise<void> {
   if (primaryClient) {
     await primaryClient.quit();
     primaryClient = null;
@@ -40,7 +42,7 @@ export async function closeRedis(): Promise<void> {
   }
 }
 
-export async function ping(): Promise<string> {
-  const client = await getRedis();
+export async function ping(scanId: string): Promise<string> {
+  const client = await getRedis(scanId);
   return client.ping();
 }

@@ -1,10 +1,12 @@
 /**
  * Semantic LLM response cache. Mirrors LangCache: hash-then-embed prompt,
  * VSIM Redis 8 Vector Set for near-duplicate retrieval, SET the response
- * by id with TTL. Tracks hit/miss counters.
+ * by id with TTL. Tracks hit/miss counters and emits `redis.langcache.hit`
+ * on every hit.
  */
 
 import { createHash } from 'node:crypto';
+import { emitEvent } from '@/lib/events/emitter';
 import { getRedis } from './client';
 import { embed } from '@/lib/ghost/memory';
 import type { CacheResult, CacheStats } from './types';
@@ -23,11 +25,12 @@ function promptId(prompt: string): string {
 }
 
 export async function semanticGet(
+  scanId: string,
   prompt: string,
   similarityThreshold = DEFAULT_SIMILARITY_THRESHOLD,
 ): Promise<CacheResult> {
-  const client = await getRedis();
-  const vec = await embed(prompt);
+  const client = await getRedis(scanId);
+  const vec = await embed(scanId, prompt);
 
   const args: string[] = ['VSIM', CACHE_VECTOR_SET, 'VALUES', String(vec.length)];
   for (const v of vec) args.push(String(v));
@@ -44,6 +47,8 @@ export async function semanticGet(
     }
     throw err;
   }
+
+  const hash = promptId(prompt);
 
   if (!Array.isArray(raw) || raw.length < 2) {
     await client.incr(CACHE_MISSES_COUNTER);
@@ -67,6 +72,20 @@ export async function semanticGet(
   }
 
   await client.incr(CACHE_HITS_COUNTER);
+  const stats = await readStats(client);
+  await emitEvent(scanId, {
+    source: 'redis',
+    type: 'redis.langcache.hit',
+    data: {
+      hitRate: stats.rate,
+      hits: stats.hits,
+      misses: stats.misses,
+      promptHash: hash,
+      matchedId: topId,
+      similarity,
+    },
+  });
+
   return {
     hit: true,
     response,
@@ -76,13 +95,14 @@ export async function semanticGet(
 }
 
 export async function semanticSet(
+  scanId: string,
   prompt: string,
   response: string,
   ttlSec = DEFAULT_TTL_SEC,
 ): Promise<string> {
-  const client = await getRedis();
+  const client = await getRedis(scanId);
   const id = promptId(prompt);
-  const vec = await embed(prompt);
+  const vec = await embed(scanId, prompt);
 
   const vaddArgs: string[] = ['VADD', CACHE_VECTOR_SET, 'VALUES', String(vec.length)];
   for (const v of vec) vaddArgs.push(String(v));
@@ -95,8 +115,9 @@ export async function semanticSet(
   return id;
 }
 
-export async function getHitRate(): Promise<CacheStats> {
-  const client = await getRedis();
+async function readStats(
+  client: Awaited<ReturnType<typeof getRedis>>,
+): Promise<CacheStats> {
   const [hitsRaw, missesRaw] = await Promise.all([
     client.get(CACHE_HITS_COUNTER),
     client.get(CACHE_MISSES_COUNTER),
@@ -111,7 +132,12 @@ export async function getHitRate(): Promise<CacheStats> {
   };
 }
 
-export async function resetStats(): Promise<void> {
-  const client = await getRedis();
+export async function getHitRate(scanId: string): Promise<CacheStats> {
+  const client = await getRedis(scanId);
+  return readStats(client);
+}
+
+export async function resetStats(scanId: string): Promise<void> {
+  const client = await getRedis(scanId);
   await client.del([CACHE_HITS_COUNTER, CACHE_MISSES_COUNTER]);
 }

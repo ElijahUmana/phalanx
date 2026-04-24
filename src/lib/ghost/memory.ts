@@ -1,8 +1,9 @@
 import { env } from '@/lib/env';
+import { emitEvent } from '@/lib/events/emitter';
 import { getConnectionForPhalanx, withPg } from './client';
 import type { CveRecord, CveSimilarity, RemediationMemory, Severity, CveStatus } from './types';
 
-export async function embed(text: string): Promise<number[]> {
+export async function embed(_scanId: string, text: string): Promise<number[]> {
   const e = env();
   const dim = e.EMBEDDING_DIM;
 
@@ -81,10 +82,10 @@ function formatVectorLiteral(vec: number[]): string {
   return `[${vec.join(',')}]`;
 }
 
-export async function recordCve(cve: CveRecord): Promise<void> {
-  const vec = await embed(`${cve.cveId} ${cve.description}`);
-  const connStr = await getConnectionForPhalanx();
-  await withPg(connStr, async (client) => {
+export async function recordCve(scanId: string, cve: CveRecord): Promise<void> {
+  const vec = await embed(scanId, `${cve.cveId} ${cve.description}`);
+  const connStr = await getConnectionForPhalanx(scanId);
+  await withPg(scanId, connStr, async (client) => {
     await client.query(
       `INSERT INTO cves (cve_id, severity, cvss_score, affected_packages, patch_versions,
                          discovery_source, description, embedding, published_at, status)
@@ -117,12 +118,13 @@ export async function recordCve(cve: CveRecord): Promise<void> {
 }
 
 export async function findSimilarCves(
+  scanId: string,
   description: string,
   k = 5,
 ): Promise<CveSimilarity[]> {
-  const vec = await embed(description);
-  const connStr = await getConnectionForPhalanx();
-  return withPg(connStr, async (client) => {
+  const vec = await embed(scanId, description);
+  const connStr = await getConnectionForPhalanx(scanId);
+  const results = await withPg(scanId, connStr, async (client) => {
     const result = await client.query<{
       cve_id: string;
       severity: Severity;
@@ -159,12 +161,30 @@ export async function findSimilarCves(
       similarity: 1 - Number(r.distance),
     }));
   });
+
+  if (results.length > 0) {
+    await emitEvent(scanId, {
+      source: 'ghost',
+      type: 'ghost.memory.match',
+      data: {
+        pattern: description.slice(0, 200),
+        score: results[0].similarity,
+        topCveId: results[0].cve.cveId,
+        matchCount: results.length,
+      },
+    });
+  }
+
+  return results;
 }
 
-export async function recordRemediation(mem: RemediationMemory): Promise<number> {
-  const vec = await embed(`${mem.cveId} ${mem.hypothesis} ${mem.outcome}`);
-  const connStr = await getConnectionForPhalanx();
-  return withPg(connStr, async (client) => {
+export async function recordRemediation(
+  scanId: string,
+  mem: RemediationMemory,
+): Promise<number> {
+  const vec = await embed(scanId, `${mem.cveId} ${mem.hypothesis} ${mem.outcome}`);
+  const connStr = await getConnectionForPhalanx(scanId);
+  return withPg(scanId, connStr, async (client) => {
     const result = await client.query<{ id: number }>(
       `INSERT INTO remediation_memories (cve_id, hypothesis, outcome, playbook, embedding)
        VALUES ($1, $2, $3, $4, $5::vector)
@@ -182,12 +202,13 @@ export async function recordRemediation(mem: RemediationMemory): Promise<number>
 }
 
 export async function findSimilarRemediations(
+  scanId: string,
   cveDescription: string,
   k = 3,
 ): Promise<RemediationMemory[]> {
-  const vec = await embed(cveDescription);
-  const connStr = await getConnectionForPhalanx();
-  return withPg(connStr, async (client) => {
+  const vec = await embed(scanId, cveDescription);
+  const connStr = await getConnectionForPhalanx(scanId);
+  return withPg(scanId, connStr, async (client) => {
     const result = await client.query<{
       id: number;
       cve_id: string;
@@ -214,9 +235,13 @@ export async function findSimilarRemediations(
   });
 }
 
-export async function lexicalSearchCves(query: string, k = 5): Promise<CveRecord[]> {
-  const connStr = await getConnectionForPhalanx();
-  return withPg(connStr, async (client) => {
+export async function lexicalSearchCves(
+  scanId: string,
+  query: string,
+  k = 5,
+): Promise<CveRecord[]> {
+  const connStr = await getConnectionForPhalanx(scanId);
+  return withPg(scanId, connStr, async (client) => {
     const result = await client.query<{
       cve_id: string;
       severity: Severity;

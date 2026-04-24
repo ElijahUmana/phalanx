@@ -13,27 +13,18 @@
  *      hit with similarity > threshold; assert miss for an unrelated prompt.
  */
 
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import {
   getRedis,
   closeRedis,
   INVESTIGATION_STREAM,
   INVESTIGATION_GROUP,
-  publishInvestigation,
-  readInvestigations,
-  ackInvestigation,
-  streamLength,
   broadcastCancel,
   subscribeCancellations,
   addCveVector,
-  removeCveVector,
   findSimilarByEmbedding,
   findSimilarById,
   CVE_VECTOR_SET,
-  semanticGet,
-  semanticSet,
-  getHitRate,
-  resetStats,
   CACHE_VECTOR_SET,
   CACHE_RESPONSE_PREFIX,
   CACHE_PROMPT_PREFIX,
@@ -46,6 +37,7 @@ type Step = { name: string; run: () => Promise<void> };
 const steps: Step[] = [];
 let passed = 0;
 let failed = 0;
+const SCAN_ID = `test-redis-${Date.now()}`;
 function step(name: string, run: () => Promise<void>) { steps.push({ name, run }); }
 
 function delay(ms: number): Promise<void> {
@@ -54,7 +46,7 @@ function delay(ms: number): Promise<void> {
 
 async function main() {
   env();
-  const client = await getRedis();
+  const client = await getRedis(SCAN_ID);
   const runId = randomUUID().slice(0, 8);
   const testStream = `${INVESTIGATION_STREAM}-test-${runId}`;
   const testGroup = `${INVESTIGATION_GROUP}-test-${runId}`;
@@ -132,13 +124,13 @@ async function main() {
 
   step('Pub/Sub: subscribe to cancel:*, publish cancel:CVE-2020-8203, handler fires', async () => {
     const received: CancelEvent[] = [];
-    const subscription = await subscribeCancellations((event) => {
+    const subscription = await subscribeCancellations(SCAN_ID, (event) => {
       received.push(event);
     });
     cleanups.push(() => subscription.unsubscribe());
 
     await delay(100);
-    const subscribers = await broadcastCancel('CVE-2020-8203', 'false_positive');
+    const subscribers = await broadcastCancel(SCAN_ID, 'CVE-2020-8203', 'false_positive');
     if (subscribers < 1) throw new Error(`expected ≥1 subscriber to receive cancel, got ${subscribers}`);
 
     for (let waited = 0; waited < 2000 && received.length === 0; waited += 50) {
@@ -160,27 +152,23 @@ async function main() {
     });
 
     const cves = [
-      'CVE-2020-8203: prototype pollution lodash zipObjectDeep',
-      'CVE-2020-7598: minimist prototype pollution setKey',
-      'CVE-2020-28168: axios SSRF redirect bypass proxy',
-      'CVE-2021-32640: ws ReDoS Sec-Websocket-Protocol header',
-      'CVE-2024-29041: express open redirect res.location unsanitized',
+      { id: 'CVE-2020-8203', text: 'prototype pollution lodash zipObjectDeep' },
+      { id: 'CVE-2020-7598', text: 'minimist prototype pollution setKey' },
+      { id: 'CVE-2020-28168', text: 'axios SSRF redirect bypass proxy' },
+      { id: 'CVE-2021-32640', text: 'ws ReDoS Sec-Websocket-Protocol header' },
+      { id: 'CVE-2024-29041', text: 'express open redirect res.location unsanitized' },
     ];
-    const ids: string[] = [];
-    for (const line of cves) {
-      const cveId = line.slice(0, 13);
-      ids.push(cveId);
-      const vec = await embed(line);
-      await addCveVector(cveId, vec, testVectorSet);
+    for (const { id, text } of cves) {
+      const vec = await embed(SCAN_ID, text);
+      await addCveVector(SCAN_ID, id, vec, testVectorSet);
     }
 
     const card = await client.sendCommand(['VCARD', testVectorSet]);
     const cardNum = typeof card === 'number' ? card : Number(card);
     if (cardNum < 5) throw new Error(`expected VCARD ≥ 5, got ${cardNum}`);
 
-    const probe = 'CVE-2020-8203: prototype pollution lodash zipObjectDeep';
-    const probeVec = await embed(probe);
-    const top = await findSimilarByEmbedding(probeVec, 3, testVectorSet);
+    const probeVec = await embed(SCAN_ID, 'prototype pollution lodash zipObjectDeep');
+    const top = await findSimilarByEmbedding(SCAN_ID, probeVec, 3, testVectorSet);
     if (top.length === 0) throw new Error('VSIM returned 0 hits');
     if (top[0].cveId !== 'CVE-2020-8203') {
       throw new Error(`expected top hit CVE-2020-8203, got ${top[0].cveId} (full: ${JSON.stringify(top)})`);
@@ -190,15 +178,12 @@ async function main() {
     }
     console.log(`  [test]   top 3: ${top.map((h) => `${h.cveId}(${h.similarity.toFixed(3)})`).join(', ')}`);
 
-    const byId = await findSimilarById('CVE-2020-8203', 3, testVectorSet);
+    const byId = await findSimilarById(SCAN_ID, 'CVE-2020-8203', 3, testVectorSet);
     if (byId.length === 0) throw new Error('VSIM ELE returned 0 hits');
     console.log(`  [test]   VSIM ELE top 3: ${byId.map((h) => h.cveId).join(', ')}`);
   });
 
   step('Semantic cache: near-duplicate prompt hits, unrelated prompt misses', async () => {
-    const { semanticSet: _set, semanticGet: _get } = await import('@/lib/redis/cache');
-    void _set; void _get;
-
     const testCacheHits = `cache:stats:test-${runId}:hits`;
     const testCacheMisses = `cache:stats:test-${runId}:misses`;
     cleanups.push(async () => {
@@ -213,8 +198,8 @@ async function main() {
     const prompt = 'How do I remediate CVE-2020-8203 lodash prototype pollution?';
     const response = 'Upgrade lodash to 4.17.21 and run pnpm test.';
 
-    const vec = await embed(prompt);
-    const id = 'test-' + runId + '-' + require('node:crypto').createHash('sha256').update(prompt).digest('hex').slice(0, 16);
+    const vec = await embed(SCAN_ID, prompt);
+    const id = 'test-' + runId + '-' + createHash('sha256').update(prompt).digest('hex').slice(0, 16);
     const vaddArgs: string[] = ['VADD', testCacheSet, 'VALUES', String(vec.length)];
     for (const v of vec) vaddArgs.push(String(v));
     vaddArgs.push(id);
@@ -223,7 +208,7 @@ async function main() {
     await client.set(testCachePromptPrefix + id, prompt, { EX: 300 });
 
     const probe = async (text: string) => {
-      const probeVec = await embed(text);
+      const probeVec = await embed(SCAN_ID, text);
       const args: string[] = ['VSIM', testCacheSet, 'VALUES', String(probeVec.length)];
       for (const v of probeVec) args.push(String(v));
       args.push('COUNT', '1', 'WITHSCORES');
@@ -276,7 +261,7 @@ async function main() {
     try { await cleanup(); } catch (err) { console.warn('[cleanup] error:', err); }
   }
 
-  await closeRedis();
+  await closeRedis(SCAN_ID);
   if (failed > 0) process.exit(1);
 }
 

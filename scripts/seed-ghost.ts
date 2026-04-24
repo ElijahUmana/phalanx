@@ -23,9 +23,9 @@ import type { CveRecord } from '@/lib/ghost/types';
 
 const ROOT = join(process.cwd());
 const EXPRESS_CLONE = join(ROOT, 'tmp-seed', 'express');
+const SCAN_ID = `seed-${Date.now()}`;
 
 async function main() {
-  // Validate env — fails loudly if REDIS/Ghost keys aren't set.
   env();
 
   if (!existsSync(EXPRESS_CLONE)) {
@@ -43,7 +43,7 @@ async function main() {
     devDependencies: Record<string, string>;
   };
 
-  const connStr = await getConnectionForPhalanx();
+  const connStr = await getConnectionForPhalanx(SCAN_ID);
   const client = new PgClient({ connectionString: connStr });
   await client.connect();
 
@@ -79,7 +79,6 @@ async function main() {
 
     console.log(`[seed]   inserted ${depIds.length} deps for expressjs-upstream`);
 
-    // Synthesized enterprise-api service with real historical vulnerable versions.
     const vulnerableDeps = [
       { name: 'lodash', version: '4.17.15', license: 'MIT' },
       { name: 'minimist', version: '1.2.0', license: 'MIT' },
@@ -125,7 +124,7 @@ async function main() {
   console.log('[seed] inserting CVE records with embeddings ...');
   const cves = JSON.parse(readFileSync(join(ROOT, 'scripts', 'seed-data', 'cves.json'), 'utf8')) as CveRecord[];
   for (const cve of cves) {
-    await recordCve(cve);
+    await recordCve(SCAN_ID, cve);
     console.log(`[seed]   ${cve.cveId} (${cve.severity}, cvss ${cve.cvssScore})`);
   }
   console.log(`[seed] inserted ${cves.length} CVE records`);
