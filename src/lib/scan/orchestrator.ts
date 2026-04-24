@@ -198,9 +198,9 @@ export async function runScan(opts: ScanOptions): Promise<void> {
       HYPOTHESES.map(async (h, i) => {
         await sleep(i * 80);
         const forkName = `phalanx-${h.name}-${randomUUID().slice(0, 6)}`.toLowerCase();
-        // Ghost fork can queue for 10+ seconds on cold cluster; cap at 8s and
-        // let the orchestrator proceed with a synthetic fork id so the demo
-        // never deadlocks on infra.
+        // Ghost fork takes ~10-15s in practice (CLI subprocess + psql connect).
+        // 30s keeps us live across cold-cluster queueing while still bounding
+        // the demo so one hung fork can't deadlock the full scan.
         const fork = await timed(
           `ghost.createFork.${h.name}`,
           () =>
@@ -209,7 +209,7 @@ export async function runScan(opts: ScanOptions): Promise<void> {
               hypothesis: h.name,
               cveId: DEMO_CVE.cveId,
             }),
-          8000,
+          30_000,
         );
         if (!fork) {
           // Emit a synthetic fork.complete so the dashboard lane settles.
