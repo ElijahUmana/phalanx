@@ -172,14 +172,14 @@ function applyEvent(state: ScanState, event: PhalanxEvent): ScanState {
     }
 
     case 'ghost.fork.started': {
-      const forkId = getString(d, 'forkId');
-      if (!forkId) return { ...state, events: nextEvents };
+      const hypothesis = getString(d, 'hypothesis') ?? '';
+      const forkId = getString(d, 'forkId') ?? `phalanx-${hypothesis}-${Date.now().toString(36)}`;
       const hypObj = getObject(d, 'hypothesis') ?? {};
       const fork: Fork = {
         forkId,
         hypothesis: {
-          name: getString(hypObj, 'name') ?? forkId,
-          strategy: getString(hypObj, 'strategy') ?? '',
+          name: typeof d.hypothesis === 'string' ? d.hypothesis : (getString(hypObj, 'name') ?? forkId),
+          strategy: typeof d.hypothesis === 'string' ? d.hypothesis : (getString(hypObj, 'strategy') ?? ''),
         },
         cveId: getString(d, 'cveId') ?? '',
         status: 'forking',
@@ -193,26 +193,31 @@ function applyEvent(state: ScanState, event: PhalanxEvent): ScanState {
     }
 
     case 'ghost.fork.complete': {
-      const forkId = getString(d, 'forkId');
+      const forkId = getString(d, 'forkId') ?? '';
       return {
         ...state,
         events: nextEvents,
-        forks: state.forks.map((f) =>
-          f.forkId === forkId
-            ? { ...f, status: 'provisioning', completedAt: event.timestamp }
-            : f,
-        ),
+        forks: state.forks.map((f, idx) => {
+          if (f.forkId === forkId) return { ...f, forkId, status: 'provisioning' as const, completedAt: event.timestamp };
+          if (forkId.includes(f.hypothesis.name) || forkId.includes(f.hypothesis.strategy))
+            return { ...f, forkId, status: 'provisioning' as const, completedAt: event.timestamp };
+          if (!forkId && idx === state.forks.findIndex((ff) => ff.status === 'forking'))
+            return { ...f, status: 'provisioning' as const, completedAt: event.timestamp };
+          return f;
+        }),
       };
     }
 
     case 'insforge.provision': {
-      const forkId = getString(d, 'forkId');
+      const forkId = getString(d, 'forkId') ?? '';
       const url = getString(d, 'url');
       return {
         ...state,
         events: nextEvents,
         forks: state.forks.map((f) =>
-          f.forkId === forkId ? { ...f, status: 'validating', backendUrl: url } : f,
+          (f.forkId === forkId || forkId.includes(f.hypothesis.name) || forkId.includes(f.hypothesis.strategy))
+            ? { ...f, forkId: forkId || f.forkId, status: 'validating' as const, backendUrl: url }
+            : f,
         ),
       };
     }
