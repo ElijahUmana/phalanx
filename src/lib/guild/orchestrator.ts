@@ -119,7 +119,8 @@ async function chat(
             else reject(new Error(`guild agent chat exited ${code}\n  stderr: '${stderr}'`));
         });
         proc.on('error', (err: Error) => { clearTimeout(timer); reject(err); });
-        proc.stdin.write(prompt + '\n');
+        const jsonInput = JSON.stringify({ prompt });
+        proc.stdin.write(jsonInput + '\n');
         proc.stdin.end();
     });
     const durationMs = Date.now() - startedAt;
