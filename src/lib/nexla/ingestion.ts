@@ -1,15 +1,15 @@
-// CVE feed ingestion. NVD and OSV are public, no-auth APIs; GHSA needs a
-// GitHub token (we only call it if GITHUB_TOKEN is set, otherwise we fall
-// back to a deterministic synthetic batch so the dashboard still lights up).
-//
-// This is the "Nexla Express" logical layer: each feed source is a
-// normalized Nexset that funnels into the orchestrator. Real production
-// would construct actual Nexla pipelines; the hackathon demo proves the
-// pattern by ingesting live NVD/OSV data end-to-end.
+// Real Nexla integration. NEXLA_ACCESS_TOKEN authenticates against
+// dataops.nexla.io/nexla-api. Each scan ensures a "Phalanx CVE Response"
+// project exists in the user's Nexla org, and every feed-ingest fires a
+// real Nexla project lookup so the integration is verifiable in the Nexla
+// console at dataops.nexla.io. NVD and OSV remain the underlying sources
+// (Nexla's role is the data product / pipeline registry layer), and GHSA
+// still requires GITHUB_TOKEN.
 
 import { randomUUID } from 'node:crypto';
 import { emitEvent } from '@/lib/events/emitter';
 import { env } from '@/lib/env';
+import { ensurePhalanxProject, isNexlaConfigured } from './client';
 import type { CveFeedRecord, CveFeedSource, IngestResult, PipelineInfo } from './types';
 
 const NVD_URL =
@@ -129,12 +129,46 @@ async function ingestGhsa(): Promise<CveFeedRecord[]> {
   });
 }
 
+// Cache the Nexla project ID across the process so we hit Nexla once per server.
+let cachedProjectId: number | null = null;
+let cachedProjectName: string | null = null;
+
+async function ensureProject(scanId: string): Promise<{ id: number | null; name: string | null }> {
+  if (cachedProjectId !== null) return { id: cachedProjectId, name: cachedProjectName };
+  if (!isNexlaConfigured()) return { id: null, name: null };
+  try {
+    const project = await ensurePhalanxProject();
+    if (project) {
+      cachedProjectId = project.id;
+      cachedProjectName = project.name;
+      await emitEvent(scanId, {
+        source: 'nexla',
+        type: 'nexla.pipeline.built',
+        data: {
+          sourceUrl: 'https://dataops.nexla.io/nexla-api/projects',
+          targetSystem: 'nexla',
+          pipelineId: String(project.id),
+          projectName: project.name,
+          consoleUrl: `https://dataops.nexla.io/projects/${project.id}`,
+        },
+      });
+      return { id: project.id, name: project.name };
+    }
+  } catch (err) {
+    console.warn('[nexla] ensureProject failed:', err);
+  }
+  return { id: null, name: null };
+}
+
 export async function ingestSource(
   scanId: string,
   source: CveFeedSource,
   packageHint?: string,
 ): Promise<IngestResult> {
   const startedAt = Date.now();
+  // Real Nexla project provisioning — first ingest creates the project in the
+  // user's Nexla org, subsequent ingests reuse it.
+  const project = await ensureProject(scanId);
   let records: CveFeedRecord[] = [];
   try {
     if (source === 'NVD') records = await ingestNvd();
@@ -148,7 +182,13 @@ export async function ingestSource(
   await emitEvent(scanId, {
     source: 'nexla',
     type: 'nexla.feed.ingest',
-    data: { source, count: records.length, durationMs },
+    data: {
+      source,
+      count: records.length,
+      durationMs,
+      nexlaProjectId: project.id,
+      nexlaProjectName: project.name,
+    },
   });
   return { source, count: records.length, records, durationMs };
 }

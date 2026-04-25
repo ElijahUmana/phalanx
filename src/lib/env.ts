@@ -17,6 +17,8 @@ const EnvSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   NEXLA_SLACK_WEBHOOK_URL: z.string().url().optional(),
+  NEXLA_ACCESS_TOKEN: z.string().optional(),
+  NEXLA_API_URL: z.string().url().default('https://dataops.nexla.io/nexla-api'),
 
   GHOST_DB_NAME: z.string().default('phalanx-deps'),
 
