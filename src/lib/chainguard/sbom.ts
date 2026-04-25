@@ -15,7 +15,7 @@ import { emitEvent } from '@/lib/events/emitter';
 import type { SBOMInfo, SignatureVerification } from './types';
 
 const execFileAsync = promisify(execFile);
-const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
+const FIXTURES_DIR = path.resolve(process.cwd(), 'src/lib/chainguard/fixtures');
 const CHAINGUARD_CERT_IDENTITY_REGEX =
     'https://github\\.com/chainguard-images/images(-private)?/\\.github/workflows/release\\.yaml@refs/heads/main';
 const CHAINGUARD_CERT_OIDC_ISSUER = 'https://token.actions.githubusercontent.com';

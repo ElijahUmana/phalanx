@@ -17,7 +17,7 @@
 // "../agents" (relative to the Next.js project root). In production this
 // would swap to the Guild HTTP API directly once a stable Node SDK ships.
 
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createHash, randomUUID } from 'node:crypto';
 import * as path from 'node:path';
@@ -102,26 +102,28 @@ async function chat(
 
     const sessionId = randomUUID();
     const startedAt = Date.now();
-    const { stdout } = await execFileAsync(
-        'guild',
-        [
-            'agent',
-            'chat',
-            '--path',
-            meta.path,
-            '--mode',
-            'json',
-            '--no-splash',
-            prompt,
-        ],
-        {
-            encoding: 'utf8',
-            maxBuffer: 32 * 1024 * 1024,
-            timeout: GUILD_CLI_TIMEOUT_MS,
-        },
-    );
+    const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+        const proc = spawn(
+            'guild',
+            ['agent', 'chat', '--path', meta.path, '--mode', 'json', '--no-splash', '--ephemeral'],
+            { stdio: ['pipe', 'pipe', 'pipe'] },
+        );
+        let stdout = '';
+        let stderr = '';
+        const timer = setTimeout(() => { proc.kill(); reject(new Error('Guild agent timed out')); }, GUILD_CLI_TIMEOUT_MS);
+        proc.stdout.on('data', (d: Buffer) => { stdout += d.toString(); });
+        proc.stderr.on('data', (d: Buffer) => { stderr += d.toString(); });
+        proc.on('close', (code: number) => {
+            clearTimeout(timer);
+            if (code === 0) resolve({ stdout, stderr });
+            else reject(new Error(`guild agent chat exited ${code}\n  stderr: '${stderr}'`));
+        });
+        proc.on('error', (err: Error) => { clearTimeout(timer); reject(err); });
+        proc.stdin.write(prompt + '\n');
+        proc.stdin.end();
+    });
     const durationMs = Date.now() - startedAt;
-    return { sessionId, text: stdout, durationMs };
+    return { sessionId, text: result.stdout, durationMs };
 }
 
 function extractJson(text: string): unknown {
