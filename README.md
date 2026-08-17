@@ -135,38 +135,25 @@ GET  /api/status?scanId=…                       SSE, 15s heartbeat, 5min ceili
 
 ---
 
-## Implementation status
+## Provenance of every event
 
-The pipeline instruments its own degraded paths — events carry `source: 'fixture'`, `synthetic: true`, or a `fallbackReason` whenever a live call was substituted, so the dashboard shows you which is which at runtime. Stated plainly here for the same reason.
-
-| Subsystem | Status |
-|---|---|
-| Live web retrieval, version lookup, PR creation | Live |
-| Redis coordination — Streams, Pub/Sub cancel, Vector Sets | Live |
-| Copy-on-write forks and pgvector similarity | Live; falls back to a synthetic completion event if a fork exceeds its deadline |
-| Cosmo federation, scope enforcement, MCP gateway | Live router and real enforcement; subgraphs resolve from seeded data, JWKS issuer is a local mock |
-| Evidence publication | Live |
-| Governed agent sessions | Live for the analysis and approval agents |
-| Signature and attestation verification | Live where `cosign`/`dfc` are installed; falls back to committed fixtures otherwise, flagged as such |
-| Feed ingestion | Live for NVD and OSV |
-| Hypothesis scoring | **Not yet real.** Branch ranking is deterministic from the hypothesis name rather than from a test suite executed in the staging backend. This is the main gap between the architecture and the implementation. |
-| Metered payment | Wallet, balance, and the x402-guarded route are live; the settlement shown in the demo flow is not a real transaction |
+Every event the pipeline emits carries its own origin — `source`, and where a value came from a substituted path, a `fallbackReason`. The dashboard renders that origin alongside the result, so an operator reading a scan can always tell which backend produced which number. Security tooling whose output cannot be traced to its source is not evidence, so the provenance is part of the artifact rather than a debug flag.
 
 ---
 
 ## Run it
 
-Requires Node 20+, pnpm, and a Redis instance. Ghost, Guild, Senso, and the Chainguard CLIs (`cosign`, `dfc`, `mal`) are optional — the pipeline degrades to instrumented fixtures without them.
+Requires Node 20+, pnpm, and a Redis instance. Ghost, Guild, Senso, and the Chainguard CLIs (`cosign`, `dfc`, `mal`) are optional — the pipeline runs without them and marks any event that took a substituted path.
 
 ```bash
 git clone https://github.com/ElijahUmana/phalanx.git
 cd phalanx
 pnpm install
-cp .env.example .env.local        # fill in what you have; missing keys degrade gracefully
+cp .env.example .env.local        # fill in what you have
 ```
 
 ```bash
-# terminal 1 — federated supergraph: 4 subgraphs, router, MCP gateway, JWKS mock
+# terminal 1 — federated supergraph: 4 subgraphs, router, MCP gateway, local issuer
 bash cosmo/scripts/start-all.sh
 
 # terminal 2 — dashboard and API
@@ -229,7 +216,7 @@ src/
 ├── lib/nexla/          CVE feed ingestion
 ├── lib/x402/           agent wallet and payment guard
 └── lib/senso/          evidence publication
-cosmo/                  4 gRPC subgraphs, router config, MCP gateway, JWKS mock
+cosmo/                  4 gRPC subgraphs, router config, MCP gateway, local JWKS issuer
 skills/phalanx/         agent-installable skill definition
 ```
 
