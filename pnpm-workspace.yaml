@@ -1,3 +1,12 @@
+# Single-package repo. `packages` has to be declared even so — pnpm treats the
+# presence of this file as a workspace and errors out without it.
+packages:
+  - '.'
+
+# pnpm 11 refuses to install when a dependency's build script is skipped
+# without being declared here, so every skipped one is listed explicitly.
+# These all ship prebuilt binaries; none needs its postinstall to run.
 ignoredBuiltDependencies:
+  - esbuild
   - sharp
   - unrs-resolver

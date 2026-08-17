@@ -29,7 +29,7 @@ async function postSlackIfConfigured(
 export async function writeback(opts: WritebackOptions): Promise<void> {
   const { scanId, targetSystem, artifact, payload } = opts;
   let delivered = false;
-  let deliveryDetails: Record<string, unknown> = {};
+  const deliveryDetails: Record<string, unknown> = {};
 
   if (targetSystem === 'Slack') {
     const res = await postSlackIfConfigured(scanId, payload);

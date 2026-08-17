@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: lint + typecheck + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Pinned to the major that generated pnpm-lock.yaml. pnpm 9 and 10 read
+      # the `pnpm` field in package.json and derive a packageExtensionsChecksum
+      # from it; pnpm 11 ignores that field, so the lockfile carries no such
+      # checksum and a frozen install under 9 or 10 fails with
+      # ERR_PNPM_LOCKFILE_CONFIG_MISMATCH.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          # pnpm 11 needs Node 22+; on 20 it aborts with
+          # ERR_UNKNOWN_BUILTIN_MODULE while resolving the store path.
+          node-version: "22"
+          cache: pnpm
+
+      # --ignore-scripts is explicit rather than incidental: every native
+      # dependency here ships prebuilt binaries, and pnpm 11 aborts the
+      # install outright if a build script is skipped implicitly.
+      - name: Install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Builds without any service credentials — every integration degrades to
+      # an instrumented fallback when its key is absent.
+      - name: Build
+        run: pnpm build

@@ -17,7 +17,8 @@
     "test:scopes": "tsx cosmo/scripts/demo-scopes.ts",
     "cosmo:compose": "wgc router compose -i ./cosmo/graph.yaml -o ./cosmo/config.json",
     "cosmo:start": "bash ./cosmo/scripts/start-all.sh",
-    "test:all": "pnpm test:ghost && pnpm test:redis && pnpm test:chainguard && pnpm test:wundergraph"
+    "test:all": "pnpm test:ghost && pnpm test:redis && pnpm test:chainguard && pnpm test:wundergraph",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@coinbase/cdp-sdk": "^1.48.2",

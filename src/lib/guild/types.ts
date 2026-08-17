@@ -1,6 +1,6 @@
 // Guild agent orchestration — input/output Zod schemas for the 5 Phalanx
 // agents. The agents themselves enforce these shapes via their system prompts
-// (see /Users/elijahumana/hackathon-2026/agents/phalanx-*/agent.ts). Here we
+// (the agent definitions are published to Guild, not vendored here). Here we
 // parse responses at the system boundary so the orchestrator never operates
 // on untyped agent output.
 

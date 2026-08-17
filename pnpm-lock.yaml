@@ -4,13 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-packageExtensionsChecksum: sha256-URRj88OT1nXdORVf/bKB8njmmNaRklecwNj/z4z7OzQ=
-
-patchedDependencies:
-  '@tiny-fish/sdk@0.0.8':
-    hash: 7f8a99b328de700cc5846fdc1625b5dc5e0c3a4a9f7eb7fa11504c65c066fd3b
-    path: patches/@tiny-fish__sdk@0.0.8.patch
-
 importers:
 
   .:
@@ -32,7 +25,7 @@ importers:
         version: 0.11.0
       '@tiny-fish/sdk':
         specifier: ^0.0.8
-        version: 0.0.8(patch_hash=7f8a99b328de700cc5846fdc1625b5dc5e0c3a4a9f7eb7fa11504c65c066fd3b)
+        version: 0.0.8
       '@x402/core':
         specifier: ^2.10.0
         version: 2.10.0
@@ -3269,6 +3262,7 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@11.1.0:
@@ -4501,7 +4495,7 @@ snapshots:
       postcss: 8.5.10
       tailwindcss: 4.2.4
 
-  '@tiny-fish/sdk@0.0.8(patch_hash=7f8a99b328de700cc5846fdc1625b5dc5e0c3a4a9f7eb7fa11504c65c066fd3b)':
+  '@tiny-fish/sdk@0.0.8':
     dependencies:
       p-retry: 7.1.1
       zod: 4.3.6
