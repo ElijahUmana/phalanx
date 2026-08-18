@@ -71,7 +71,7 @@ Each capability is a role in the pipeline. The service implementing it is an int
 
 ---
 
-## Two ideas worth stealing
+## Two core ideas
 
 ### Capability security for agents, enforced at the data layer
 
