@@ -9,6 +9,8 @@
 
 Every other tool in this space tests one hypothesis at a time. That is the whole idea.
 
+**[▶ View the demo](https://devpost.com/software/phalanx-c2gupz)**
+
 ---
 
 ## The mechanism
