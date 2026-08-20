@@ -3,10 +3,5 @@
   "framework": "nextjs",
   "buildCommand": "pnpm build",
   "installCommand": "pnpm install --frozen-lockfile",
-  "outputDirectory": ".next",
-  "git": {
-    "deploymentEnabled": {
-      "main": false
-    }
-  }
+  "outputDirectory": ".next"
 }
